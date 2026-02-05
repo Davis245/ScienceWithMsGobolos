@@ -6,3 +6,34 @@ venv/
 node_modules/
 .idea/
 .vscode/
+
+# Node / package managers
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Next.js
+.next/
+web/.next/
+
+# Build output
+dist/
+build/
+
+# Turbopack / cache
+.turbo/
+.cache/
+
+# Environment files (local overrides)
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel/
+
+# Lockfiles (optional to commit)
+# package-lock.json
+# pnpm-lock.yaml
