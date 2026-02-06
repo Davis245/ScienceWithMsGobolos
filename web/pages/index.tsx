@@ -17,8 +17,9 @@ export default function Home() {
       padding: '20px'
     }}>
       <div style={{
-        width: '80%',
-        height: '80vh',
+        width: '1200px',
+        maxWidth: '90%',
+        height: '600px',
         backgroundImage: 'url(/SWMG_home.png)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
