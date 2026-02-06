@@ -1,6 +1,11 @@
 import Link from 'next/link'
+import { ReactNode } from 'react'
 
-export default function Layout({ children }) {
+interface LayoutProps {
+  children: ReactNode
+}
+
+export default function Layout({ children }: LayoutProps) {
   return (
     <div>
       <header style={{ padding: 20, borderBottom: '1px solid #ddd' }}>
