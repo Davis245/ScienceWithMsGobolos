@@ -55,7 +55,7 @@ export default function Home() {
           color: colors.textSecondary,
           textAlign: 'center'
         }}>
-          Room #110 • email@example.com • (555) 123-4567
+          Room #110 • jeannette.gobolos@sd27.bc.ca • (250) 392-6284
         </p>
       </div>
     </div>
