@@ -8,11 +8,18 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const router = useRouter()
-  const bgColor = '#f8f9fa'
+  const colors = {
+    background: '#F8F9FB',
+    surface: '#FFFFFF',
+    primary: '#3B6EA8',
+    accent: '#7FB9C6',
+    textPrimary: '#1F2933',
+    textSecondary: '#4B5563',
+  }
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <header style={{ backgroundColor: bgColor, padding: '20px 40px' }}>
+      <header style={{ backgroundColor: colors.background, padding: '20px 40px' }}>
         <nav style={{ 
           display: 'flex', 
           justifyContent: 'space-between',
@@ -21,7 +28,7 @@ export default function Layout({ children }: LayoutProps) {
           margin: '0 auto'
         }}>
           {/* Left-aligned logo */}
-          <div style={{ fontWeight: 'bold', fontSize: '18px', color: '#0066cc' }}>
+          <div style={{ fontWeight: 'bold', fontSize: '18px', color: colors.primary }}>
             MsG
           </div>
 
@@ -29,42 +36,42 @@ export default function Layout({ children }: LayoutProps) {
           <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
             <Link href="/" style={{ 
               textDecoration: 'none',
-              color: router.pathname === '/' ? '#0066cc' : '#333',
+              color: router.pathname === '/' ? colors.primary : colors.textSecondary,
               fontWeight: router.pathname === '/' ? '600' : '400'
             }}>
               Home
             </Link>
             <Link href="/scholarship" style={{ 
               textDecoration: 'none',
-              color: router.pathname === '/scholarship' ? '#0066cc' : '#333',
-              fontWeight: router.pathname === '/scholarship' ? '600' : '400'
+              color: router.pathname === '/scholarships' ? colors.primary : colors.textSecondary,
+              fontWeight: router.pathname === '/scholarships' ? '600' : '400'
             }}>
-              Scholarship
+              Scholarships
             </Link>
             <Link href="/chemistry-12" style={{ 
               textDecoration: 'none',
-              color: router.pathname === '/chemistry-12' ? '#0066cc' : '#333',
+              color: router.pathname === '/chemistry-12' ? colors.primary : colors.textSecondary,
               fontWeight: router.pathname === '/chemistry-12' ? '600' : '400'
             }}>
               Chemistry 12
             </Link>
             <Link href="/chemistry-11" style={{ 
               textDecoration: 'none',
-              color: router.pathname === '/chemistry-11' ? '#0066cc' : '#333',
+              color: router.pathname === '/chemistry-11' ? colors.primary : colors.textSecondary,
               fontWeight: router.pathname === '/chemistry-11' ? '600' : '400'
             }}>
               Chemistry 11
             </Link>
             <Link href="/anatomy-physiology" style={{ 
               textDecoration: 'none',
-              color: router.pathname === '/anatomy-physiology' ? '#0066cc' : '#333',
+              color: router.pathname === '/anatomy-physiology' ? colors.primary : colors.textSecondary,
               fontWeight: router.pathname === '/anatomy-physiology' ? '600' : '400'
             }}>
               Anatomy & Physiology
             </Link>
             <Link href="/calculus-12" style={{ 
               textDecoration: 'none',
-              color: router.pathname === '/calculus-12' ? '#0066cc' : '#333',
+              color: router.pathname === '/calculus-12' ? colors.primary : colors.textSecondary,
               fontWeight: router.pathname === '/calculus-12' ? '600' : '400'
             }}>
               Calculus 12
@@ -74,7 +81,7 @@ export default function Layout({ children }: LayoutProps) {
         
         {/* Separator line - 90% width */}
         <div style={{ 
-          borderBottom: '1px solid #ddd',
+          borderBottom: `1px solid ${colors.accent}`,
           width: '90%',
           margin: '16px auto 0',
           maxWidth: '1400px'
@@ -83,9 +90,9 @@ export default function Layout({ children }: LayoutProps) {
 
       <main style={{ 
         flex: 1,
-        backgroundColor: bgColor,
-        padding: '40px',
-        maxWidth: '1400px',
+        backgroundColor: colors.background,
+        padding: '0px 40px',
+        maxWidth: '2000px',
         width: '100%',
         margin: '0 auto'
       }}>
@@ -95,8 +102,8 @@ export default function Layout({ children }: LayoutProps) {
       <footer style={{ 
         padding: '20px',
         textAlign: 'center',
-        borderTop: '1px solid #eee',
-        color: '#666',
+        borderTop: `1px solid ${colors.accent}`,
+        color: colors.textSecondary,
         fontSize: '14px'
       }}>
         © ScienceWithMsGobolos
