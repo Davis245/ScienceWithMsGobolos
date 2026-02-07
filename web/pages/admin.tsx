@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
+import type { User } from '@supabase/supabase-js'
 
 interface DateCard {
   id: string
@@ -26,6 +27,13 @@ export default function Admin() {
     textSecondary: '#4B5563',
   }
 
+  // Auth state
+  const [user, setUser] = useState<User | null>(null)
+  const [authLoading, setAuthLoading] = useState(true)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loginError, setLoginError] = useState('')
+
   // Important Dates state
   const [dates, setDates] = useState<DateCard[]>([])
   const [dateForm, setDateForm] = useState({ date: '', title: '', description: '' })
@@ -38,11 +46,42 @@ export default function Admin() {
   const [pdfFile, setPdfFile] = useState<File | null>(null)
   const [pdfSection, setPdfSection] = useState<'newsletters' | 'howTo'>('newsletters')
 
+  // Check for existing session on mount
   useEffect(() => {
-    fetchDates()
-    fetchPdfs('newsletters')
-    fetchPdfs('howTo')
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      setAuthLoading(false)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
+
+  // Fetch data once logged in
+  useEffect(() => {
+    if (user) {
+      fetchDates()
+      fetchPdfs('newsletters')
+      fetchPdfs('howTo')
+    }
+  }, [user])
+
+  async function handleLogin(e: FormEvent) {
+    e.preventDefault()
+    setLoginError('')
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) {
+      setLoginError(error.message)
+    }
+  }
+
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    setUser(null)
+  }
 
   async function fetchDates() {
     const { data, error } = await supabase
@@ -190,9 +229,61 @@ export default function Admin() {
 
   return (
     <div style={{ padding: '40px 0', maxWidth: '900px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: colors.primary, marginBottom: '40px' }}>
-        Admin Panel
-      </h1>
+
+      {/* ===== AUTH GATE ===== */}
+      {authLoading ? (
+        <p style={{ textAlign: 'center', color: colors.textSecondary, fontSize: '18px' }}>Loading...</p>
+      ) : !user ? (
+        <div style={{
+          maxWidth: '400px', margin: '80px auto',
+          backgroundColor: colors.surface, padding: '40px',
+          borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: colors.primary, marginBottom: '8px', textAlign: 'center' }}>
+            Admin Login
+          </h1>
+          <p style={{ color: colors.textSecondary, textAlign: 'center', marginBottom: '28px', fontSize: '14px' }}>
+            Sign in to manage site content
+          </p>
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <input
+              style={inputStyle}
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+            />
+            <input
+              style={inputStyle}
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+            />
+            {loginError && (
+              <p style={{ color: '#d9534f', fontSize: '14px', margin: 0 }}>{loginError}</p>
+            )}
+            <button type="submit" style={{ ...buttonStyle, width: '100%', textAlign: 'center' }}>
+              Sign In
+            </button>
+          </form>
+        </div>
+      ) : (
+      <>
+      {/* ===== ADMIN PANEL (authenticated) ===== */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+        <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: colors.primary, margin: 0 }}>
+          Admin Panel
+        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <span style={{ color: colors.textSecondary, fontSize: '14px' }}>{user.email}</span>
+          <button onClick={handleLogout} style={{ ...buttonStyle, backgroundColor: colors.textSecondary, padding: '8px 18px', fontSize: '14px' }}>
+            Sign Out
+          </button>
+        </div>
+      </div>
 
       {/* ===== IMPORTANT DATES ===== */}
       <section style={{ marginBottom: '60px' }}>
@@ -345,6 +436,8 @@ export default function Admin() {
           ))}
         </div>
       </section>
+      </>
+      )}
     </div>
   )
 }
