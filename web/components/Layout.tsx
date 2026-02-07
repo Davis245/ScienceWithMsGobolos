@@ -29,7 +29,7 @@ export default function Layout({ children }: LayoutProps) {
         }}>
           {/* Left-aligned logo */}
           <div style={{ fontWeight: 'bold', fontSize: '18px', color: colors.primary }}>
-            MsG
+            Gobs
           </div>
 
           {/* Right-aligned links */}
