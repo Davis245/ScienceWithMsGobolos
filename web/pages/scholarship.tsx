@@ -10,59 +10,21 @@ export default function Scholarship() {
 
   return (
     <div style={{ padding: '40px 0' }}>
-      {/* Top section with image and titles */}
-      <div style={{ 
-        display: 'flex', 
-        gap: '40px',
-        alignItems: 'flex-end',
-        marginBottom: '40px'
-      }}>
-        {/* Left side - Image */}
-        <div style={{
-          width: '300px',
-          height: '300px',
-          backgroundColor: colors.accent,
-          borderRadius: '12px',
-          flexShrink: 0,
-          backgroundImage: 'url(/scholarship-image.jpg)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }} />
-
-        {/* Right side - Titles */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          justifyContent: 'center'
+      {/* Title - centered horizontally */}
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <h1 style={{ 
+          display: 'inline-block',
+          fontSize: '48px',
+          fontWeight: 'bold',
+          color: colors.primary,
+          margin: '0',
+          padding: '16px 40px',
+          border: `2px solid ${colors.accent}`,
+          borderRadius: '16px',
+          backgroundColor: colors.accent
         }}>
-          <h1 style={{ 
-            fontSize: '48px',
-            fontWeight: 'bold',
-            margin: '0 0 8px 0',
-            color: colors.primary,
-            lineHeight: '1.2'
-          }}>
-            Scholarships
-          </h1>
-          <h2 style={{ 
-            fontSize: '48px',
-            fontWeight: 'bold',
-            margin: '0 0 8px 0',
-            color: colors.primary,
-            lineHeight: '1.2'
-          }}>
-            Bursaries
-          </h2>
-          <h2 style={{ 
-            fontSize: '48px',
-            fontWeight: 'bold',
-            margin: '0',
-            color: colors.primary,
-            lineHeight: '1.2'
-          }}>
-            Awards
-          </h2>
-        </div>
+          Scholarships &nbsp;•&nbsp; Bursaries &nbsp;•&nbsp; Awards
+        </h1>
       </div>
 
       {/* Content area below */}

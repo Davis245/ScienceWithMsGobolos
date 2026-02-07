@@ -78,15 +78,13 @@ export default function Layout({ children }: LayoutProps) {
             </Link>
           </div>
         </nav>
-        
-        {/* Separator line - 90% width */}
-        <div style={{ 
-          borderBottom: `1px solid ${colors.accent}`,
-          width: '90%',
-          margin: '16px auto 0',
-          maxWidth: '1400px'
-        }} />
       </header>
+
+      {/* Separator line - full width */}
+      <div style={{ 
+        borderBottom: `1px solid ${colors.accent}`,
+        width: '100%'
+      }} />
 
       <main style={{ 
         flex: 1,
