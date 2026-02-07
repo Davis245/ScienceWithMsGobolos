@@ -41,7 +41,7 @@ export default function Layout({ children }: LayoutProps) {
             }}>
               Home
             </Link>
-            <Link href="/scholarship" style={{ 
+            <Link href="/scholarships" style={{ 
               textDecoration: 'none',
               color: router.pathname === '/scholarships' ? colors.primary : colors.textSecondary,
               fontWeight: router.pathname === '/scholarships' ? '600' : '400'
