@@ -9,12 +9,12 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const router = useRouter()
   const colors = {
-    background: '#A0DDE6',
-    surface: '#80C2AF',
-    primary: '#30C5FF',
-    accent: '#5C946E',
-    textPrimary: '#2A2D34',
-    textSecondary: '#2A2D34',
+    background: '#F8F9FB',
+    surface: '#FFFFFF',
+    primary: '#3B6EA8',
+    accent: '#7FB9C6',
+    textPrimary: '#1F2933',
+    textSecondary: '#4B5563',
   }
 
   return (
