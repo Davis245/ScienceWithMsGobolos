@@ -411,7 +411,7 @@ export default function Admin() {
               <option value="chem11_helpful">Helpful Documents</option>
               <option value="chem11_assignments">Assignments</option>
             </optgroup>
-            <optgroup label="Anatomy &amp; Physiology">
+            <optgroup label="Anatomy &amp; Physiology 12">
               <option value="anatomy_helpful">Helpful Documents</option>
               <option value="anatomy_assignments">Assignments</option>
             </optgroup>
@@ -575,9 +575,9 @@ export default function Admin() {
           ))}
         </div>
 
-        {/* Anatomy & Physiology - Helpful Documents */}
+        {/* Anatomy & Physiology 12 - Helpful Documents */}
         <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: colors.primary, margin: '36px 0 12px' }}>
-          Anatomy &amp; Physiology — Helpful Documents
+          Anatomy &amp; Physiology 12 — Helpful Documents
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {anatomyHelpful.length === 0 && (
@@ -598,9 +598,9 @@ export default function Admin() {
           ))}
         </div>
 
-        {/* Anatomy & Physiology - Assignments */}
+        {/* Anatomy & Physiology 12 - Assignments */}
         <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: colors.primary, margin: '24px 0 12px' }}>
-          Anatomy &amp; Physiology — Assignments
+          Anatomy &amp; Physiology 12 — Assignments
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {anatomyAssignments.length === 0 && (

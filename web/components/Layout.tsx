@@ -67,7 +67,7 @@ export default function Layout({ children }: LayoutProps) {
               color: router.pathname === '/anatomy-physiology' ? colors.primary : colors.textSecondary,
               fontWeight: router.pathname === '/anatomy-physiology' ? '600' : '400'
             }}>
-              Anatomy & Physiology
+              Anatomy & Physiology 12
             </Link>
             <Link href="/calculus-12" style={{ 
               textDecoration: 'none',

@@ -55,7 +55,7 @@ export default function AnatomyPhysiology() {
           borderRadius: '16px',
           backgroundColor: colors.accent
         }}>
-          Anatomy &amp; Physiology
+          Anatomy &amp; Physiology 12
         </h1>
       </div>
 
