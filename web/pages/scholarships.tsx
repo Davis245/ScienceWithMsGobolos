@@ -87,12 +87,16 @@ export default function Scholarship() {
         <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
           {dates.map((item) => (
             <div key={item.id} style={{
-              flex: '1 1 220px',
+              width: '220px',
+              minHeight: '187px',
               backgroundColor: colors.surface,
               borderRadius: '12px',
               padding: '24px',
               boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-              borderLeft: `4px solid ${colors.primary}`
+              borderTop: `4px solid ${colors.primary}`,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-start'
             }}>
               <p style={{
                 fontSize: '14px',
