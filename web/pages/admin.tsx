@@ -1,8 +1,15 @@
-import { useState, useEffect, FormEvent } from 'react'
+import { useState, useEffect, useRef, type FormEvent, type ChangeEvent, type CSSProperties } from 'react'
 import type { User } from '@supabase/supabase-js'
-import { courseConfigs, scholarshipResourceSections, type CourseConfig, type ResourceSectionConfig } from '../data/site-config'
+import {
+  courseConfigs,
+  scholarshipResourceSections,
+  type CourseConfig,
+  type ResourceSectionConfig,
+} from '../data/site-config'
 import { themeColors } from '../lib/design-tokens'
 import { supabase } from '../lib/supabase'
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface DateCard {
   id: string
@@ -19,84 +26,707 @@ interface PdfEntry {
   uploaded_at: string
 }
 
-type PdfSection = ResourceSectionConfig['sectionKey'] | CourseConfig['helpfulSectionKey'] | CourseConfig['assignmentSectionKey']
+type PdfSection =
+  | ResourceSectionConfig['sectionKey']
+  | CourseConfig['helpfulSectionKey']
+  | CourseConfig['assignmentSectionKey']
 
-const coursePdfSections = courseConfigs.flatMap((course) => [course.helpfulSectionKey, course.assignmentSectionKey])
+// ─── Section configuration ────────────────────────────────────────────────────
 
-export default function Admin() {
-  const colors = themeColors
+interface PdfGroup {
+  groupLabel: string
+  sections: { key: PdfSection; label: string }[]
+}
 
-  // Auth state
-  const [user, setUser] = useState<User | null>(null)
-  const [authLoading, setAuthLoading] = useState(true)
+const pdfGroups: PdfGroup[] = [
+  {
+    groupLabel: 'Scholarships',
+    sections: scholarshipResourceSections.map((s) => ({
+      key: s.sectionKey as PdfSection,
+      label: s.displayName,
+    })),
+  },
+  ...courseConfigs.map((course) => ({
+    groupLabel: course.displayName,
+    sections: [
+      { key: course.helpfulSectionKey as PdfSection, label: 'Helpful Documents' },
+      { key: course.assignmentSectionKey as PdfSection, label: 'Assignments' },
+    ],
+  })),
+]
+
+const allSectionKeys: PdfSection[] = pdfGroups.flatMap((g) => g.sections.map((s) => s.key))
+
+function sectionLabel(key: PdfSection): string {
+  for (const group of pdfGroups) {
+    for (const section of group.sections) {
+      if (section.key === key) return `${group.groupLabel} — ${section.label}`
+    }
+  }
+  return key
+}
+
+function emptyPdfMap(): Record<PdfSection, PdfEntry[]> {
+  return Object.fromEntries(allSectionKeys.map((k) => [k, []])) as unknown as Record<PdfSection, PdfEntry[]>
+}
+
+function safePdfUrl(url: string): string {
+  // Restrict to https:// to prevent javascript: URI injection. All Supabase Storage
+  // public URLs are https, so legitimate entries are unaffected.
+  return url.startsWith('https://') ? url : '#'
+}
+
+
+const colors = themeColors
+
+const inputStyle: CSSProperties = {
+  padding: '10px 14px',
+  borderRadius: '8px',
+  border: `1px solid ${colors.accent}`,
+  fontSize: '16px',
+  width: '100%',
+  boxSizing: 'border-box',
+}
+
+const labelStyle: CSSProperties = {
+  display: 'block',
+  fontSize: '14px',
+  fontWeight: 600,
+  color: colors.textPrimary,
+  marginBottom: '4px',
+}
+
+const buttonStyle: CSSProperties = {
+  padding: '10px 24px',
+  borderRadius: '8px',
+  border: 'none',
+  backgroundColor: colors.primary,
+  color: '#fff',
+  fontSize: '16px',
+  cursor: 'pointer',
+  fontWeight: 600,
+}
+
+const dangerButtonStyle: CSSProperties = {
+  ...buttonStyle,
+  backgroundColor: '#d9534f',
+  padding: '6px 14px',
+  fontSize: '14px',
+}
+
+const editButtonStyle: CSSProperties = {
+  ...buttonStyle,
+  backgroundColor: colors.accent,
+  padding: '6px 14px',
+  fontSize: '14px',
+  color: colors.textPrimary,
+}
+
+const disabledStyle: CSSProperties = { opacity: 0.6, cursor: 'not-allowed' }
+
+function FeedbackMessage({ message, isError }: { message: string; isError: boolean }) {
+  if (!message) return null
+  return (
+    <p
+    role={isError ? 'alert' : 'status'}
+    aria-live={isError ? 'assertive' : 'polite'}
+      style={{
+        margin: '8px 0 0',
+        fontSize: '14px',
+        color: isError ? '#d9534f' : '#16a34a',
+        fontWeight: 500,
+      }}
+    >
+      {message}
+    </p>
+  )
+}
+
+// ─── AdminLogin ───────────────────────────────────────────────────────────────
+
+interface AdminLoginProps {
+  onLogin: () => void
+}
+
+function AdminLogin({ onLogin }: AdminLoginProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loginError, setLoginError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  // Important Dates state
-  const [dates, setDates] = useState<DateCard[]>([])
+  async function handleLogin(e: FormEvent) {
+    e.preventDefault()
+    setLoginError('')
+    setLoading(true)
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    setLoading(false)
+    if (error) {
+      setLoginError(error.message)
+    } else {
+      onLogin()
+    }
+  }
+
+  return (
+    <div
+      style={{
+        maxWidth: '400px',
+        margin: '80px auto',
+        backgroundColor: colors.surface,
+        padding: '40px',
+        borderRadius: '16px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+      }}
+    >
+      <h1
+        style={{
+          fontSize: '28px',
+          fontWeight: 'bold',
+          color: colors.primary,
+          marginBottom: '8px',
+          textAlign: 'center',
+        }}
+      >
+        Admin Login
+      </h1>
+      <p
+        style={{
+          color: colors.textSecondary,
+          textAlign: 'center',
+          marginBottom: '28px',
+          fontSize: '14px',
+        }}
+      >
+        Sign in to manage site content
+      </p>
+      <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div>
+          <label htmlFor="login-email" style={labelStyle}>
+            Email
+          </label>
+          <input
+            id="login-email"
+            style={inputStyle}
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="login-password" style={labelStyle}>
+            Password
+          </label>
+          <input
+            id="login-password"
+            style={inputStyle}
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        {loginError && (
+          <p role="alert" style={{ color: '#d9534f', fontSize: '14px', margin: 0 }}>
+            {loginError}
+          </p>
+        )}
+        <button
+          type="submit"
+          disabled={loading}
+          style={{ ...buttonStyle, width: '100%', textAlign: 'center', ...(loading ? disabledStyle : {}) }}
+        >
+          {loading ? 'Signing in…' : 'Sign In'}
+        </button>
+      </form>
+    </div>
+  )
+}
+
+// ─── ImportantDatesManager ────────────────────────────────────────────────────
+
+interface ImportantDatesManagerProps {
+  dates: DateCard[]
+  onRefresh: () => void
+}
+
+function ImportantDatesManager({ dates, onRefresh }: ImportantDatesManagerProps) {
   const [dateForm, setDateForm] = useState({ date: '', title: '', description: '' })
   const [editingDate, setEditingDate] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [feedback, setFeedback] = useState<{ message: string; isError: boolean } | null>(null)
 
-  // PDF state
-  const [newsletters, setNewsletters] = useState<PdfEntry[]>([])
-  const [howTo, setHowTo] = useState<PdfEntry[]>([])
-  const [chem12Helpful, setChem12Helpful] = useState<PdfEntry[]>([])
-  const [chem12Assignments, setChem12Assignments] = useState<PdfEntry[]>([])
-  const [chem11Helpful, setChem11Helpful] = useState<PdfEntry[]>([])
-  const [chem11Assignments, setChem11Assignments] = useState<PdfEntry[]>([])
-  const [anatomyHelpful, setAnatomyHelpful] = useState<PdfEntry[]>([])
-  const [anatomyAssignments, setAnatomyAssignments] = useState<PdfEntry[]>([])
-  const [calc12Helpful, setCalc12Helpful] = useState<PdfEntry[]>([])
-  const [calc12Assignments, setCalc12Assignments] = useState<PdfEntry[]>([])
+  function showFeedback(message: string, isError: boolean) {
+    setFeedback({ message, isError })
+    setTimeout(() => setFeedback(null), 5000)
+  }
+
+  async function handleDateSubmit(e: FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    if (editingDate) {
+      const { error } = await supabase
+        .from('important_dates')
+        .update({ date: dateForm.date, title: dateForm.title, description: dateForm.description })
+        .eq('id', editingDate)
+      setLoading(false)
+      if (error) {
+        showFeedback(`Error updating date: ${error.message}`, true)
+        return
+      }
+      showFeedback('Date updated successfully.', false)
+      setEditingDate(null)
+    } else {
+      const { error } = await supabase
+        .from('important_dates')
+        .insert({ date: dateForm.date, title: dateForm.title, description: dateForm.description })
+      setLoading(false)
+      if (error) {
+        showFeedback(`Error adding date: ${error.message}`, true)
+        return
+      }
+      showFeedback('Date added successfully.', false)
+    }
+    setDateForm({ date: '', title: '', description: '' })
+    onRefresh()
+  }
+
+  async function deleteDate(id: string, title: string) {
+    if (!confirm(`Delete date "${title}"? This cannot be undone.`)) return
+    const { error } = await supabase.from('important_dates').delete().eq('id', id)
+    if (error) {
+      showFeedback(`Error deleting date: ${error.message}`, true)
+      return
+    }
+    onRefresh()
+  }
+
+  function startEditDate(card: DateCard) {
+    setEditingDate(card.id)
+    setDateForm({ date: card.date, title: card.title, description: card.description })
+    setFeedback(null)
+  }
+
+  return (
+    <section style={{ marginBottom: '60px' }}>
+      <h2
+        style={{
+          fontSize: '28px',
+          fontWeight: 'bold',
+          color: colors.textPrimary,
+          marginBottom: '20px',
+        }}
+      >
+        Important Dates
+      </h2>
+
+      <form
+        onSubmit={handleDateSubmit}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+          backgroundColor: colors.surface,
+          padding: '24px',
+          borderRadius: '12px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          marginBottom: '24px',
+        }}
+      >
+        <div>
+          <label htmlFor="date-field" style={labelStyle}>
+            Date
+          </label>
+          <input
+            id="date-field"
+            style={inputStyle}
+            placeholder="e.g. Feb 15, 2026"
+            value={dateForm.date}
+            onChange={(e) => setDateForm({ ...dateForm, date: e.target.value })}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="date-title" style={labelStyle}>
+            Title
+          </label>
+          <input
+            id="date-title"
+            style={inputStyle}
+            value={dateForm.title}
+            onChange={(e) => setDateForm({ ...dateForm, title: e.target.value })}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="date-description" style={labelStyle}>
+            Description
+          </label>
+          <input
+            id="date-description"
+            style={inputStyle}
+            value={dateForm.description}
+            onChange={(e) => setDateForm({ ...dateForm, description: e.target.value })}
+            required
+          />
+        </div>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{ ...buttonStyle, ...(loading ? disabledStyle : {}) }}
+          >
+            {loading ? 'Saving…' : editingDate ? 'Update Date' : 'Add Date'}
+          </button>
+          {editingDate && (
+            <button
+              type="button"
+              style={editButtonStyle}
+              onClick={() => {
+                setEditingDate(null)
+                setDateForm({ date: '', title: '', description: '' })
+                setFeedback(null)
+              }}
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+        {feedback && <FeedbackMessage message={feedback.message} isError={feedback.isError} />}
+      </form>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {dates.map((card) => (
+          <div
+            key={card.id}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              gap: '12px',
+              backgroundColor: colors.surface,
+              padding: '16px 20px',
+              borderRadius: '10px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+              borderLeft: `4px solid ${colors.primary}`,
+              flexWrap: 'wrap',
+            }}
+          >
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <strong style={{ color: colors.primary, wordBreak: 'break-word' }}>{card.date}</strong>
+              <span style={{ margin: '0 10px', color: colors.textPrimary, wordBreak: 'break-word' }}>
+                {card.title}
+              </span>
+              <span style={{ color: colors.textSecondary, wordBreak: 'break-word' }}>{card.description}</span>
+            </div>
+            <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+              <button style={editButtonStyle} onClick={() => startEditDate(card)}>
+                Edit
+              </button>
+              <button style={dangerButtonStyle} onClick={() => deleteDate(card.id, card.title)}>
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+// ─── PdfUploadForm ────────────────────────────────────────────────────────────
+
+interface PdfUploadFormProps {
+  onUploaded: (section: PdfSection) => void
+}
+
+function PdfUploadForm({ onUploaded }: PdfUploadFormProps) {
+  const [pdfSection, setPdfSection] = useState<PdfSection>('newsletters')
   const [pdfTitle, setPdfTitle] = useState('')
   const [pdfFile, setPdfFile] = useState<File | null>(null)
-  const [pdfSection, setPdfSection] = useState<PdfSection>('newsletters')
+  const [loading, setLoading] = useState(false)
+  const [feedback, setFeedback] = useState<{ message: string; isError: boolean } | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Check for existing session on mount
+  function showFeedback(message: string, isError: boolean) {
+    setFeedback({ message, isError })
+    setTimeout(() => setFeedback(null), 6000)
+  }
+
+  async function handlePdfUpload(e: FormEvent) {
+    e.preventDefault()
+    if (!pdfFile || !pdfTitle) return
+
+    setLoading(true)
+
+    const fileName = `${pdfSection}/${Date.now()}_${pdfFile.name}`
+    const { error: uploadError } = await supabase.storage.from('pdfs').upload(fileName, pdfFile)
+
+    if (uploadError) {
+      setLoading(false)
+      showFeedback(`Upload failed: ${uploadError.message}`, true)
+      return
+    }
+
+    const { data: urlData } = supabase.storage.from('pdfs').getPublicUrl(fileName)
+
+    const { error: insertError } = await supabase.from('pdfs').insert({
+      title: pdfTitle,
+      section: pdfSection,
+      file_url: urlData.publicUrl,
+    })
+
+    setLoading(false)
+
+    if (insertError) {
+      showFeedback(`Metadata save failed: ${insertError.message}`, true)
+      return
+    }
+
+    showFeedback(`"${pdfTitle}" uploaded successfully to ${sectionLabel(pdfSection)}.`, false)
+    setPdfTitle('')
+    setPdfFile(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+    onUploaded(pdfSection)
+  }
+
+  return (
+    <form
+      onSubmit={handlePdfUpload}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+        backgroundColor: colors.surface,
+        padding: '24px',
+        borderRadius: '12px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        marginBottom: '24px',
+      }}
+    >
+      <div>
+        <label htmlFor="pdf-section" style={labelStyle}>
+          Upload destination
+        </label>
+        <select
+          id="pdf-section"
+          style={inputStyle}
+          value={pdfSection}
+          onChange={(e) => setPdfSection(e.target.value as PdfSection)}
+        >
+          {pdfGroups.map((group) => (
+            <optgroup key={group.groupLabel} label={group.groupLabel}>
+              {group.sections.map((section) => (
+                <option key={section.key} value={section.key}>
+                  {section.label}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+        <p style={{ margin: '4px 0 0', fontSize: '13px', color: colors.textSecondary }}>
+          Selected: <strong>{sectionLabel(pdfSection)}</strong>
+        </p>
+      </div>
+      <div>
+        <label htmlFor="pdf-title" style={labelStyle}>
+          PDF title
+        </label>
+        <input
+          id="pdf-title"
+          style={inputStyle}
+          value={pdfTitle}
+          onChange={(e) => setPdfTitle(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <label htmlFor="pdf-file" style={labelStyle}>
+          PDF file
+        </label>
+        <input
+          id="pdf-file"
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf"
+          style={inputStyle}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setPdfFile(e.target.files?.[0] ?? null)}
+          required
+        />
+      </div>
+      <button
+        type="submit"
+        disabled={loading}
+        style={{ ...buttonStyle, ...(loading ? disabledStyle : {}) }}
+      >
+        {loading ? 'Uploading…' : 'Upload PDF'}
+      </button>
+      {feedback && <FeedbackMessage message={feedback.message} isError={feedback.isError} />}
+    </form>
+  )
+}
+
+// ─── ResourceManager ─────────────────────────────────────────────────────────
+
+interface ResourceManagerProps {
+  pdfs: Record<PdfSection, PdfEntry[]>
+  onDeleted: (section: PdfSection) => void
+}
+
+function ResourceManager({ pdfs, onDeleted }: ResourceManagerProps) {
+  const [feedback, setFeedback] = useState<{ message: string; isError: boolean } | null>(null)
+
+  function showFeedback(message: string, isError: boolean) {
+    setFeedback({ message, isError })
+    setTimeout(() => setFeedback(null), 5000)
+  }
+
+  async function deletePdf(id: string, section: PdfSection, fileUrl: string, title: string) {
+    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return
+
+    const storagePath = fileUrl.split('/storage/v1/object/public/pdfs/')[1]
+    if (storagePath) {
+      const { error: storageError } = await supabase.storage
+        .from('pdfs')
+        .remove([decodeURIComponent(storagePath)])
+      if (storageError) {
+        showFeedback(`Storage deletion error: ${storageError.message}`, true)
+        return
+      }
+    }
+
+    const { error } = await supabase.from('pdfs').delete().eq('id', id)
+    if (error) {
+      showFeedback(`Metadata deletion error: ${error.message}`, true)
+      return
+    }
+
+    onDeleted(section)
+  }
+
+  return (
+    <div>
+      {feedback && (
+        <div style={{ marginBottom: '16px' }}>
+          <FeedbackMessage message={feedback.message} isError={feedback.isError} />
+        </div>
+      )}
+      {pdfGroups.map((group) => (
+        <div key={group.groupLabel} style={{ marginBottom: '36px' }}>
+          <h3
+            style={{
+              fontSize: '20px',
+              fontWeight: 'bold',
+              color: colors.primary,
+              margin: '0 0 12px',
+            }}
+          >
+            {group.groupLabel}
+          </h3>
+          {group.sections.map((section) => {
+            const entries = pdfs[section.key] ?? []
+            return (
+              <div key={section.key} style={{ marginBottom: '20px' }}>
+                <h4
+                  style={{
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    color: colors.textSecondary,
+                    margin: '0 0 8px',
+                  }}
+                >
+                  {section.label}
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {entries.length === 0 && (
+                    <p style={{ color: colors.textSecondary, fontStyle: 'italic', margin: 0 }}>
+                      No files uploaded yet.
+                    </p>
+                  )}
+                  {entries.map((entry) => (
+                    <div
+                      key={entry.id}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                        gap: '12px',
+                        backgroundColor: colors.surface,
+                        padding: '14px 20px',
+                        borderRadius: '10px',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      <a
+                        href={safePdfUrl(entry.file_url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          color: colors.primary,
+                          textDecoration: 'none',
+                          fontWeight: 500,
+                          wordBreak: 'break-word',
+                          minWidth: 0,
+                          flex: 1,
+                        }}
+                      >
+                        {entry.title}
+                      </a>
+                      <button
+                        style={{ ...dangerButtonStyle, flexShrink: 0 }}
+                        onClick={() => deletePdf(entry.id, section.key, entry.file_url, entry.title)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── Admin page ───────────────────────────────────────────────────────────────
+
+export default function Admin() {
+  const [user, setUser] = useState<User | null>(null)
+  const [authLoading, setAuthLoading] = useState(true)
+  const [dates, setDates] = useState<DateCard[]>([])
+  const [pdfs, setPdfs] = useState<Record<PdfSection, PdfEntry[]>>(emptyPdfMap)
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
       setAuthLoading(false)
     })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
-
     return () => subscription.unsubscribe()
   }, [])
 
-  // Fetch data once logged in
   useEffect(() => {
     if (user) {
       fetchDates()
-      scholarshipResourceSections.forEach((section) => fetchPdfs(section.sectionKey))
-      coursePdfSections.forEach((section) => fetchPdfs(section))
+      allSectionKeys.forEach(fetchPdfs)
     }
   }, [user])
-
-  async function handleLogin(e: FormEvent) {
-    e.preventDefault()
-    setLoginError('')
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      setLoginError(error.message)
-    }
-  }
-
-  async function handleLogout() {
-    await supabase.auth.signOut()
-    setUser(null)
-  }
 
   async function fetchDates() {
     const { data, error } = await supabase
       .from('important_dates')
       .select('*')
       .order('created_at', { ascending: true })
-    if (error) console.error('Error fetching dates:', error)
-    else setDates(data || [])
+    if (!error) setDates(data ?? [])
   }
 
   async function fetchPdfs(section: PdfSection) {
@@ -105,554 +735,86 @@ export default function Admin() {
       .select('*')
       .eq('section', section)
       .order('uploaded_at', { ascending: true })
-    if (error) console.error('Error fetching pdfs:', error)
-    else {
-      const items = data || []
-      switch (section) {
-        case 'newsletters': setNewsletters(items); break
-        case 'howTo': setHowTo(items); break
-        case 'chem12_helpful': setChem12Helpful(items); break
-        case 'chem12_assignments': setChem12Assignments(items); break
-        case 'chem11_helpful': setChem11Helpful(items); break
-        case 'chem11_assignments': setChem11Assignments(items); break
-        case 'anatomy_helpful': setAnatomyHelpful(items); break
-        case 'anatomy_assignments': setAnatomyAssignments(items); break
-        case 'calc12_helpful': setCalc12Helpful(items); break
-        case 'calc12_assignments': setCalc12Assignments(items); break
-      }
+    if (!error) {
+      setPdfs((prev) => ({ ...prev, [section]: data ?? [] }))
     }
   }
 
-  // Date CRUD
-  async function handleDateSubmit(e: FormEvent) {
-    e.preventDefault()
-    if (editingDate) {
-      const { error } = await supabase
-        .from('important_dates')
-        .update({ date: dateForm.date, title: dateForm.title, description: dateForm.description })
-        .eq('id', editingDate)
-      if (error) console.error('Error updating date:', error)
-      setEditingDate(null)
-    } else {
-      const { error } = await supabase
-        .from('important_dates')
-        .insert({ date: dateForm.date, title: dateForm.title, description: dateForm.description })
-      if (error) console.error('Error adding date:', error)
-    }
-    setDateForm({ date: '', title: '', description: '' })
-    fetchDates()
+  async function handleLogout() {
+    await supabase.auth.signOut()
   }
 
-  async function deleteDate(id: string) {
-    const { error } = await supabase
-      .from('important_dates')
-      .delete()
-      .eq('id', id)
-    if (error) console.error('Error deleting date:', error)
-    fetchDates()
+  if (authLoading) {
+    return (
+      <p style={{ textAlign: 'center', color: colors.textSecondary, fontSize: '18px', padding: '80px 0' }}>
+        Loading…
+      </p>
+    )
   }
 
-  function startEditDate(card: DateCard) {
-    setEditingDate(card.id)
-    setDateForm({ date: card.date, title: card.title, description: card.description })
-  }
-
-  // PDF Upload
-  async function handlePdfUpload(e: FormEvent) {
-    e.preventDefault()
-    if (!pdfFile || !pdfTitle) return
-
-    // Upload file to Supabase Storage
-    const fileName = `${pdfSection}/${Date.now()}_${pdfFile.name}`
-    const { error: uploadError } = await supabase.storage
-      .from('pdfs')
-      .upload(fileName, pdfFile)
-
-    if (uploadError) {
-      console.error('Error uploading PDF:', uploadError)
-      return
-    }
-
-    // Get public URL
-    const { data: urlData } = supabase.storage
-      .from('pdfs')
-      .getPublicUrl(fileName)
-
-    // Insert metadata into pdfs table
-    const { error: insertError } = await supabase
-      .from('pdfs')
-      .insert({
-        title: pdfTitle,
-        section: pdfSection,
-        file_url: urlData.publicUrl,
-      })
-
-    if (insertError) console.error('Error saving PDF metadata:', insertError)
-
-    setPdfTitle('')
-    setPdfFile(null)
-    fetchPdfs(pdfSection)
-  }
-
-  async function deletePdf(id: string, section: PdfSection, fileUrl: string) {
-    // Extract the storage path from the public URL
-    const storagePath = fileUrl.split('/storage/v1/object/public/pdfs/')[1]
-    if (storagePath) {
-      const { error: storageError } = await supabase.storage
-        .from('pdfs')
-        .remove([decodeURIComponent(storagePath)])
-      if (storageError) console.error('Error deleting file from storage:', storageError)
-    }
-
-    // Delete metadata from table
-    const { error } = await supabase
-      .from('pdfs')
-      .delete()
-      .eq('id', id)
-    if (error) console.error('Error deleting PDF record:', error)
-    fetchPdfs(section)
-  }
-
-  const inputStyle = {
-    padding: '10px 14px',
-    borderRadius: '8px',
-    border: `1px solid ${colors.accent}`,
-    fontSize: '16px',
-    width: '100%',
-    boxSizing: 'border-box' as const,
-  }
-
-  const buttonStyle = {
-    padding: '10px 24px',
-    borderRadius: '8px',
-    border: 'none',
-    backgroundColor: colors.primary,
-    color: '#fff',
-    fontSize: '16px',
-    cursor: 'pointer',
-    fontWeight: '600' as const,
-  }
-
-  const dangerButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: '#d9534f',
-    padding: '6px 14px',
-    fontSize: '14px',
-  }
-
-  const editButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: colors.accent,
-    padding: '6px 14px',
-    fontSize: '14px',
+  if (!user) {
+    return <AdminLogin onLogin={() => {}} />
   }
 
   return (
-    <div style={{ padding: '40px 0', maxWidth: '900px', margin: '0 auto' }}>
-
-      {/* ===== AUTH GATE ===== */}
-      {authLoading ? (
-        <p style={{ textAlign: 'center', color: colors.textSecondary, fontSize: '18px' }}>Loading...</p>
-      ) : !user ? (
-        <div style={{
-          maxWidth: '400px', margin: '80px auto',
-          backgroundColor: colors.surface, padding: '40px',
-          borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-        }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: colors.primary, marginBottom: '8px', textAlign: 'center' }}>
-            Admin Login
-          </h1>
-          <p style={{ color: colors.textSecondary, textAlign: 'center', marginBottom: '28px', fontSize: '14px' }}>
-            Sign in to manage site content
-          </p>
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <input
-              style={inputStyle}
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
-            <input
-              style={inputStyle}
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-            />
-            {loginError && (
-              <p style={{ color: '#d9534f', fontSize: '14px', margin: 0 }}>{loginError}</p>
-            )}
-            <button type="submit" style={{ ...buttonStyle, width: '100%', textAlign: 'center' }}>
-              Sign In
-            </button>
-          </form>
-        </div>
-      ) : (
-      <>
-      {/* ===== ADMIN PANEL (authenticated) ===== */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+    <div style={{ padding: '40px 16px', maxWidth: '900px', margin: '0 auto', boxSizing: 'border-box' }}>
+      {/* Header */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '40px',
+          flexWrap: 'wrap',
+          gap: '12px',
+        }}
+      >
         <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: colors.primary, margin: 0 }}>
           Admin Panel
         </h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ color: colors.textSecondary, fontSize: '14px' }}>{user.email}</span>
-          <button onClick={handleLogout} style={{ ...buttonStyle, backgroundColor: colors.textSecondary, padding: '8px 18px', fontSize: '14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <span
+            style={{
+              color: colors.textSecondary,
+              fontSize: '14px',
+              wordBreak: 'break-all',
+              maxWidth: '240px',
+            }}
+          >
+            {user.email}
+          </span>
+          <button
+            onClick={handleLogout}
+            style={{
+              ...buttonStyle,
+              backgroundColor: colors.textSecondary,
+              padding: '8px 18px',
+              fontSize: '14px',
+            }}
+          >
             Sign Out
           </button>
         </div>
       </div>
 
-      {/* ===== IMPORTANT DATES ===== */}
-      <section style={{ marginBottom: '60px' }}>
-        <h2 style={{ fontSize: '28px', fontWeight: 'bold', color: colors.textPrimary, marginBottom: '20px' }}>
-          Important Dates
-        </h2>
+      {/* Important Dates */}
+      <ImportantDatesManager dates={dates} onRefresh={fetchDates} />
 
-        <form onSubmit={handleDateSubmit} style={{ 
-          display: 'flex', flexDirection: 'column', gap: '12px',
-          backgroundColor: colors.surface, padding: '24px', borderRadius: '12px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)', marginBottom: '24px'
-        }}>
-          <input
-            style={inputStyle}
-            placeholder="Date (e.g. Feb 15, 2026)"
-            value={dateForm.date}
-            onChange={e => setDateForm({ ...dateForm, date: e.target.value })}
-            required
-          />
-          <input
-            style={inputStyle}
-            placeholder="Title"
-            value={dateForm.title}
-            onChange={e => setDateForm({ ...dateForm, title: e.target.value })}
-            required
-          />
-          <input
-            style={inputStyle}
-            placeholder="Description"
-            value={dateForm.description}
-            onChange={e => setDateForm({ ...dateForm, description: e.target.value })}
-            required
-          />
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button type="submit" style={buttonStyle}>
-              {editingDate ? 'Update Date' : 'Add Date'}
-            </button>
-            {editingDate && (
-              <button type="button" style={editButtonStyle} onClick={() => {
-                setEditingDate(null)
-                setDateForm({ date: '', title: '', description: '' })
-              }}>
-                Cancel
-              </button>
-            )}
-          </div>
-        </form>
-
-        {/* Existing date cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {dates.map(card => (
-            <div key={card.id} style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              backgroundColor: colors.surface, padding: '16px 20px', borderRadius: '10px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)', borderLeft: `4px solid ${colors.primary}`
-            }}>
-              <div>
-                <strong style={{ color: colors.primary }}>{card.date}</strong>
-                <span style={{ margin: '0 10px', color: colors.textPrimary }}>{card.title}</span>
-                <span style={{ color: colors.textSecondary }}>{card.description}</span>
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button style={editButtonStyle} onClick={() => startEditDate(card)}>Edit</button>
-                <button style={dangerButtonStyle} onClick={() => deleteDate(card.id)}>Delete</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ===== PDF UPLOADS ===== */}
+      {/* PDF Uploads */}
       <section>
-        <h2 style={{ fontSize: '28px', fontWeight: 'bold', color: colors.textPrimary, marginBottom: '20px' }}>
+        <h2
+          style={{
+            fontSize: '28px',
+            fontWeight: 'bold',
+            color: colors.textPrimary,
+            marginBottom: '20px',
+          }}
+        >
           PDF Uploads
         </h2>
-
-        <form onSubmit={handlePdfUpload} style={{
-          display: 'flex', flexDirection: 'column', gap: '12px',
-          backgroundColor: colors.surface, padding: '24px', borderRadius: '12px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)', marginBottom: '24px'
-        }}>
-          <select
-            style={inputStyle}
-            value={pdfSection}
-            onChange={e => setPdfSection(e.target.value as PdfSection)}
-          >
-            <optgroup label="Scholarships">
-              {scholarshipResourceSections.map((section) => (
-                <option key={section.sectionKey} value={section.sectionKey}>
-                  {section.displayName}
-                </option>
-              ))}
-            </optgroup>
-            {courseConfigs.map((course) => (
-              <optgroup key={course.route} label={course.displayName}>
-                <option value={course.helpfulSectionKey}>Helpful Documents</option>
-                <option value={course.assignmentSectionKey}>Assignments</option>
-              </optgroup>
-            ))}
-          </select>
-          <input
-            style={inputStyle}
-            placeholder="PDF Title"
-            value={pdfTitle}
-            onChange={e => setPdfTitle(e.target.value)}
-            required
-          />
-          <input
-            type="file"
-            accept=".pdf"
-            style={inputStyle}
-            onChange={e => setPdfFile(e.target.files?.[0] || null)}
-            required
-          />
-          <button type="submit" style={buttonStyle}>Upload PDF</button>
-        </form>
-
-        {/* Newsletters list */}
-        <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: colors.primary, margin: '24px 0 12px' }}>
-          Scholarships — Newsletters
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {newsletters.length === 0 && (
-            <p style={{ color: colors.textSecondary, fontStyle: 'italic' }}>No newsletters uploaded yet.</p>
-          )}
-          {newsletters.map(entry => (
-            <div key={entry.id} style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              backgroundColor: colors.surface, padding: '14px 20px', borderRadius: '10px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
-            }}>
-              <a href={entry.file_url} target="_blank" rel="noopener noreferrer"
-                style={{ color: colors.primary, textDecoration: 'none', fontWeight: '500' }}>
-                {entry.title}
-              </a>
-              <button style={dangerButtonStyle} onClick={() => deletePdf(entry.id, 'newsletters', entry.file_url)}>Delete</button>
-            </div>
-          ))}
-        </div>
-
-        {/* How To list */}
-        <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: colors.primary, margin: '24px 0 12px' }}>
-          Scholarships — How To
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {howTo.length === 0 && (
-            <p style={{ color: colors.textSecondary, fontStyle: 'italic' }}>No how-to guides uploaded yet.</p>
-          )}
-          {howTo.map(entry => (
-            <div key={entry.id} style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              backgroundColor: colors.surface, padding: '14px 20px', borderRadius: '10px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
-            }}>
-              <a href={entry.file_url} target="_blank" rel="noopener noreferrer"
-                style={{ color: colors.primary, textDecoration: 'none', fontWeight: '500' }}>
-                {entry.title}
-              </a>
-              <button style={dangerButtonStyle} onClick={() => deletePdf(entry.id, 'howTo', entry.file_url)}>Delete</button>
-            </div>
-          ))}
-        </div>
-
-        {/* Chemistry 12 - Helpful Documents */}
-        <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: colors.primary, margin: '36px 0 12px' }}>
-          Chem 12 — Helpful Documents
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {chem12Helpful.length === 0 && (
-            <p style={{ color: colors.textSecondary, fontStyle: 'italic' }}>No helpful documents uploaded yet.</p>
-          )}
-          {chem12Helpful.map(entry => (
-            <div key={entry.id} style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              backgroundColor: colors.surface, padding: '14px 20px', borderRadius: '10px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
-            }}>
-              <a href={entry.file_url} target="_blank" rel="noopener noreferrer"
-                style={{ color: colors.primary, textDecoration: 'none', fontWeight: '500' }}>
-                {entry.title}
-              </a>
-              <button style={dangerButtonStyle} onClick={() => deletePdf(entry.id, 'chem12_helpful', entry.file_url)}>Delete</button>
-            </div>
-          ))}
-        </div>
-
-        {/* Chemistry 12 - Assignments */}
-        <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: colors.primary, margin: '24px 0 12px' }}>
-          Chem 12 — Assignments
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {chem12Assignments.length === 0 && (
-            <p style={{ color: colors.textSecondary, fontStyle: 'italic' }}>No assignments uploaded yet.</p>
-          )}
-          {chem12Assignments.map(entry => (
-            <div key={entry.id} style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              backgroundColor: colors.surface, padding: '14px 20px', borderRadius: '10px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
-            }}>
-              <a href={entry.file_url} target="_blank" rel="noopener noreferrer"
-                style={{ color: colors.primary, textDecoration: 'none', fontWeight: '500' }}>
-                {entry.title}
-              </a>
-              <button style={dangerButtonStyle} onClick={() => deletePdf(entry.id, 'chem12_assignments', entry.file_url)}>Delete</button>
-            </div>
-          ))}
-        </div>
-
-        {/* Chemistry 11 - Helpful Documents */}
-        <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: colors.primary, margin: '36px 0 12px' }}>
-          Chem 11 — Helpful Documents
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {chem11Helpful.length === 0 && (
-            <p style={{ color: colors.textSecondary, fontStyle: 'italic' }}>No helpful documents uploaded yet.</p>
-          )}
-          {chem11Helpful.map(entry => (
-            <div key={entry.id} style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              backgroundColor: colors.surface, padding: '14px 20px', borderRadius: '10px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
-            }}>
-              <a href={entry.file_url} target="_blank" rel="noopener noreferrer"
-                style={{ color: colors.primary, textDecoration: 'none', fontWeight: '500' }}>
-                {entry.title}
-              </a>
-              <button style={dangerButtonStyle} onClick={() => deletePdf(entry.id, 'chem11_helpful', entry.file_url)}>Delete</button>
-            </div>
-          ))}
-        </div>
-
-        {/* Chemistry 11 - Assignments */}
-        <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: colors.primary, margin: '24px 0 12px' }}>
-          Chem 11 — Assignments
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {chem11Assignments.length === 0 && (
-            <p style={{ color: colors.textSecondary, fontStyle: 'italic' }}>No assignments uploaded yet.</p>
-          )}
-          {chem11Assignments.map(entry => (
-            <div key={entry.id} style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              backgroundColor: colors.surface, padding: '14px 20px', borderRadius: '10px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
-            }}>
-              <a href={entry.file_url} target="_blank" rel="noopener noreferrer"
-                style={{ color: colors.primary, textDecoration: 'none', fontWeight: '500' }}>
-                {entry.title}
-              </a>
-              <button style={dangerButtonStyle} onClick={() => deletePdf(entry.id, 'chem11_assignments', entry.file_url)}>Delete</button>
-            </div>
-          ))}
-        </div>
-
-        {/* Anatomy & Physiology 12 - Helpful Documents */}
-        <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: colors.primary, margin: '36px 0 12px' }}>
-          Anatomy &amp; Physiology 12 — Helpful Documents
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {anatomyHelpful.length === 0 && (
-            <p style={{ color: colors.textSecondary, fontStyle: 'italic' }}>No helpful documents uploaded yet.</p>
-          )}
-          {anatomyHelpful.map(entry => (
-            <div key={entry.id} style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              backgroundColor: colors.surface, padding: '14px 20px', borderRadius: '10px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
-            }}>
-              <a href={entry.file_url} target="_blank" rel="noopener noreferrer"
-                style={{ color: colors.primary, textDecoration: 'none', fontWeight: '500' }}>
-                {entry.title}
-              </a>
-              <button style={dangerButtonStyle} onClick={() => deletePdf(entry.id, 'anatomy_helpful', entry.file_url)}>Delete</button>
-            </div>
-          ))}
-        </div>
-
-        {/* Anatomy & Physiology 12 - Assignments */}
-        <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: colors.primary, margin: '24px 0 12px' }}>
-          Anatomy &amp; Physiology 12 — Assignments
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {anatomyAssignments.length === 0 && (
-            <p style={{ color: colors.textSecondary, fontStyle: 'italic' }}>No assignments uploaded yet.</p>
-          )}
-          {anatomyAssignments.map(entry => (
-            <div key={entry.id} style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              backgroundColor: colors.surface, padding: '14px 20px', borderRadius: '10px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
-            }}>
-              <a href={entry.file_url} target="_blank" rel="noopener noreferrer"
-                style={{ color: colors.primary, textDecoration: 'none', fontWeight: '500' }}>
-                {entry.title}
-              </a>
-              <button style={dangerButtonStyle} onClick={() => deletePdf(entry.id, 'anatomy_assignments', entry.file_url)}>Delete</button>
-            </div>
-          ))}
-        </div>
-
-        {/* Calculus 12 - Helpful Documents */}
-        <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: colors.primary, margin: '36px 0 12px' }}>
-          Calculus 12 — Helpful Documents
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {calc12Helpful.length === 0 && (
-            <p style={{ color: colors.textSecondary, fontStyle: 'italic' }}>No helpful documents uploaded yet.</p>
-          )}
-          {calc12Helpful.map(entry => (
-            <div key={entry.id} style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              backgroundColor: colors.surface, padding: '14px 20px', borderRadius: '10px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
-            }}>
-              <a href={entry.file_url} target="_blank" rel="noopener noreferrer"
-                style={{ color: colors.primary, textDecoration: 'none', fontWeight: '500' }}>
-                {entry.title}
-              </a>
-              <button style={dangerButtonStyle} onClick={() => deletePdf(entry.id, 'calc12_helpful', entry.file_url)}>Delete</button>
-            </div>
-          ))}
-        </div>
-
-        {/* Calculus 12 - Assignments */}
-        <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: colors.primary, margin: '24px 0 12px' }}>
-          Calculus 12 — Assignments
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {calc12Assignments.length === 0 && (
-            <p style={{ color: colors.textSecondary, fontStyle: 'italic' }}>No assignments uploaded yet.</p>
-          )}
-          {calc12Assignments.map(entry => (
-            <div key={entry.id} style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              backgroundColor: colors.surface, padding: '14px 20px', borderRadius: '10px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
-            }}>
-              <a href={entry.file_url} target="_blank" rel="noopener noreferrer"
-                style={{ color: colors.primary, textDecoration: 'none', fontWeight: '500' }}>
-                {entry.title}
-              </a>
-              <button style={dangerButtonStyle} onClick={() => deletePdf(entry.id, 'calc12_assignments', entry.file_url)}>Delete</button>
-            </div>
-          ))}
-        </div>
+        <PdfUploadForm onUploaded={fetchPdfs} />
+        <ResourceManager pdfs={pdfs} onDeleted={fetchPdfs} />
       </section>
-      </>
-      )}
     </div>
   )
 }
