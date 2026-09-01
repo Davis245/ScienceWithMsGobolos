@@ -58,6 +58,12 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="flex min-h-screen flex-col bg-page text-slate-900">
+      <a
+        href="#main-content"
+        className="sr-only z-50 rounded-md bg-white px-3 py-2 text-sm font-medium text-ink no-underline shadow-soft focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
+      >
+        Skip to main content
+      </a>
       <header className="sticky top-0 z-30 border-b border-border bg-white/90 backdrop-blur">
         <Container>
           <nav className="flex min-h-[4.5rem] items-center justify-between gap-4 py-3" aria-label="Primary">
@@ -80,6 +86,7 @@ export default function Layout({ children }: LayoutProps) {
                   className={`${primaryLinkClass} ${isCourseRoute ? activeLinkClass : inactiveLinkClass}`}
                   aria-expanded={isDesktopCoursesOpen}
                   aria-controls={desktopCoursesId}
+                  aria-haspopup="menu"
                   onClick={() => setIsDesktopCoursesOpen((open) => !open)}
                 >
                   Courses
@@ -129,6 +136,7 @@ export default function Layout({ children }: LayoutProps) {
               }`}
               aria-expanded={isMobileMenuOpen}
               aria-controls={mobileMenuId}
+              aria-haspopup="menu"
               onClick={() => setIsMobileMenuOpen((open) => !open)}
             >
               Menu
@@ -159,6 +167,7 @@ export default function Layout({ children }: LayoutProps) {
                   }`}
                   aria-expanded={isMobileCoursesOpen}
                   aria-controls={mobileCoursesId}
+                  aria-haspopup="menu"
                   onClick={() => setIsMobileCoursesOpen((open) => !open)}
                 >
                   <span>Courses</span>
@@ -211,7 +220,7 @@ export default function Layout({ children }: LayoutProps) {
         </Container>
       </header>
 
-      <main className="flex-1">
+      <main id="main-content" className="flex-1" tabIndex={-1}>
         <Container className="py-8 sm:py-10">{children}</Container>
       </main>
 

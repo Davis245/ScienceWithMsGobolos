@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, type FormEvent, type ChangeEvent, type CSSProperties } from 'react'
+import Head from 'next/head'
 import type { User } from '@supabase/supabase-js'
 import {
   courseConfigs,
@@ -746,75 +747,95 @@ export default function Admin() {
 
   if (authLoading) {
     return (
-      <p style={{ textAlign: 'center', color: colors.textSecondary, fontSize: '18px', padding: '80px 0' }}>
-        Loading…
-      </p>
+      <>
+        <Head>
+          <title>Admin | Science With Ms. Gobolos</title>
+          <meta name="description" content="Admin dashboard for managing Science With Ms. Gobolos site content." />
+          <meta name="robots" content="noindex,nofollow" />
+        </Head>
+        <p style={{ textAlign: 'center', color: colors.textSecondary, fontSize: '18px', padding: '80px 0' }}>
+          Loading…
+        </p>
+      </>
     )
   }
 
   if (!user) {
-    return <AdminLogin onLogin={() => {}} />
+    return (
+      <>
+        <Head>
+          <title>Admin | Science With Ms. Gobolos</title>
+          <meta name="description" content="Admin dashboard for managing Science With Ms. Gobolos site content." />
+          <meta name="robots" content="noindex,nofollow" />
+        </Head>
+        <AdminLogin onLogin={() => {}} />
+      </>
+    )
   }
 
   return (
-    <div style={{ padding: '40px 16px', maxWidth: '900px', margin: '0 auto', boxSizing: 'border-box' }}>
-      {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '40px',
-          flexWrap: 'wrap',
-          gap: '12px',
-        }}
-      >
-        <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: colors.primary, margin: 0 }}>
-          Admin Panel
-        </h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-          <span
-            style={{
-              color: colors.textSecondary,
-              fontSize: '14px',
-              wordBreak: 'break-all',
-              maxWidth: '240px',
-            }}
-          >
-            {user.email}
-          </span>
-          <button
-            onClick={handleLogout}
-            style={{
-              ...buttonStyle,
-              backgroundColor: colors.textSecondary,
-              padding: '8px 18px',
-              fontSize: '14px',
-            }}
-          >
-            Sign Out
-          </button>
-        </div>
-      </div>
-
-      {/* Important Dates */}
-      <ImportantDatesManager dates={dates} onRefresh={fetchDates} />
-
-      {/* PDF Uploads */}
-      <section>
-        <h2
+    <>
+      <Head>
+        <title>Admin | Science With Ms. Gobolos</title>
+        <meta name="description" content="Admin dashboard for managing Science With Ms. Gobolos site content." />
+        <meta name="robots" content="noindex,nofollow" />
+      </Head>
+      <div style={{ padding: '40px 16px', maxWidth: '900px', margin: '0 auto', boxSizing: 'border-box' }}>
+        <div
           style={{
-            fontSize: '28px',
-            fontWeight: 'bold',
-            color: colors.textPrimary,
-            marginBottom: '20px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '40px',
+            flexWrap: 'wrap',
+            gap: '12px',
           }}
         >
-          PDF Uploads
-        </h2>
-        <PdfUploadForm onUploaded={fetchPdfs} />
-        <ResourceManager pdfs={pdfs} onDeleted={fetchPdfs} />
-      </section>
-    </div>
+          <h1 style={{ fontSize: '36px', fontWeight: 'bold', color: colors.primary, margin: 0 }}>
+            Admin Panel
+          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <span
+              style={{
+                color: colors.textSecondary,
+                fontSize: '14px',
+                wordBreak: 'break-all',
+                maxWidth: '240px',
+              }}
+            >
+              {user.email}
+            </span>
+            <button
+              onClick={handleLogout}
+              style={{
+                ...buttonStyle,
+                backgroundColor: colors.textSecondary,
+                padding: '8px 18px',
+                fontSize: '14px',
+              }}
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+
+        <ImportantDatesManager dates={dates} onRefresh={fetchDates} />
+
+        <section>
+          <h2
+            style={{
+              fontSize: '28px',
+              fontWeight: 'bold',
+              color: colors.textPrimary,
+              marginBottom: '20px',
+            }}
+          >
+            PDF Uploads
+          </h2>
+          <PdfUploadForm onUploaded={fetchPdfs} />
+          <ResourceManager pdfs={pdfs} onDeleted={fetchPdfs} />
+        </section>
+      </div>
+    </>
   )
 }
