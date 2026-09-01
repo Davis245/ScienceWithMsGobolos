@@ -753,9 +753,10 @@ export default function Admin() {
           <meta name="description" content="Admin dashboard for managing Science With Ms. Gobolos site content." />
           <meta name="robots" content="noindex,nofollow" />
         </Head>
-        <p style={{ textAlign: 'center', color: colors.textSecondary, fontSize: '18px', padding: '80px 0' }}>
-          Loading…
-        </p>
+        <div style={{ textAlign: 'center', padding: '80px 0' }}>
+          <h1 style={{ color: colors.primary, fontSize: '32px', margin: '0 0 12px' }}>Admin</h1>
+          <p style={{ color: colors.textSecondary, fontSize: '18px', margin: 0 }}>Loading…</p>
+        </div>
       </>
     )
   }
