@@ -6,6 +6,18 @@ interface CourseCardProps {
   course: CourseConfig
 }
 
+function getSubjectLabel(course: CourseConfig) {
+  if (course.displayName.startsWith('Chemistry')) {
+    return 'Chemistry'
+  }
+
+  if (course.displayName.startsWith('Anatomy')) {
+    return 'Biology'
+  }
+
+  return 'Mathematics'
+}
+
 export default function CourseCard({ course }: CourseCardProps) {
   return (
     <Link
@@ -16,7 +28,7 @@ export default function CourseCard({ course }: CourseCardProps) {
     >
       <div className="flex h-full flex-col">
         <p className="m-0 text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: subjectAccentColors[course.accent] }}>
-          Course
+          {getSubjectLabel(course)}
         </p>
         <h3 className="mt-3 text-xl font-semibold tracking-tight text-slate-900">{course.displayName}</h3>
         <p className="mt-2 text-sm leading-6 text-slate-600">{course.description}</p>
