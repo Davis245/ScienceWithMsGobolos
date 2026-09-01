@@ -12,7 +12,7 @@ npm run dev
 
 Open http://localhost:3000 in your browser. Pages created:
 - / (Home)
-- /scholarship
+- /scholarships
 - /chemistry-12
 - /chemistry-11
 - /anatomy-physiology
