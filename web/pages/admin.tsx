@@ -745,6 +745,11 @@ export default function Admin() {
     await supabase.auth.signOut()
   }
 
+  async function refreshUserSession() {
+    const { data: { session } } = await supabase.auth.getSession()
+    setUser(session?.user ?? null)
+  }
+
   if (authLoading) {
     return (
       <>
@@ -769,7 +774,7 @@ export default function Admin() {
           <meta name="description" content="Admin dashboard for managing Science With Ms. Gobolos site content." />
           <meta name="robots" content="noindex,nofollow" />
         </Head>
-        <AdminLogin onLogin={() => {}} />
+        <AdminLogin onLogin={() => void refreshUserSession()} />
       </>
     )
   }

@@ -138,7 +138,7 @@ export default function Scholarships() {
         <section className="space-y-4">
           <h2 className="m-0 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Resources</h2>
           <div className="grid gap-4 md:grid-cols-2">
-            <section className="rounded-panel border border-border bg-white p-5 shadow-soft sm:p-6">
+            <div className="rounded-panel border border-border bg-white p-5 shadow-soft sm:p-6">
               <h3 className="m-0 text-xl font-semibold tracking-tight text-slate-900">{newslettersSection.displayName}</h3>
               {loadingNewsletters && <p className="mb-0 mt-3 text-sm italic text-slate-500">Loading…</p>}
               {!loadingNewsletters && errorNewsletters && (
@@ -154,9 +154,9 @@ export default function Scholarships() {
                   ))}
                 </ul>
               )}
-            </section>
+            </div>
 
-            <section className="rounded-panel border border-border bg-white p-5 shadow-soft sm:p-6">
+            <div className="rounded-panel border border-border bg-white p-5 shadow-soft sm:p-6">
               <h3 className="m-0 text-xl font-semibold tracking-tight text-slate-900">{howToSection.displayName}</h3>
               {loadingHowTo && <p className="mb-0 mt-3 text-sm italic text-slate-500">Loading…</p>}
               {!loadingHowTo && errorHowTo && (
@@ -172,7 +172,7 @@ export default function Scholarships() {
                   ))}
                 </ul>
               )}
-            </section>
+            </div>
           </div>
         </section>
       </div>

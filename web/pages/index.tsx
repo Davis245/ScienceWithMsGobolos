@@ -12,7 +12,7 @@ export default function Home() {
         <title>Science With Ms. Gobolos</title>
         <meta
           name="description"
-          content="Chemistry, anatomy, and calculus resources for students at Lake City Secondary School."
+          content="Chemistry, biology, and calculus resources for students at Lake City Secondary School."
         />
       </Head>
 

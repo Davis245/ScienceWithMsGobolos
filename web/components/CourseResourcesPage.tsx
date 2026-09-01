@@ -1,7 +1,7 @@
 import Head from 'next/head'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import SectionHeading from './SectionHeading'
-import { getCourseConfig } from '../data/site-config'
+import { getCourseConfig, type CourseConfig } from '../data/site-config'
 import { supabase } from '../lib/supabase'
 
 interface PdfEntry {
@@ -21,7 +21,7 @@ interface ResourceSectionProps {
 
 function ResourceSection({ title, entries, loading, hasError, emptyMessage, errorMessage }: ResourceSectionProps) {
   return (
-    <section className="rounded-panel border border-border bg-white p-5 shadow-soft sm:p-6">
+    <div className="rounded-panel border border-border bg-white p-5 shadow-soft sm:p-6">
       <h2 className="m-0 text-2xl font-semibold tracking-tight text-slate-900">{title}</h2>
       {loading && <p className="mt-3 text-sm italic text-slate-500">Loading…</p>}
       {!loading && hasError && <p className="mt-3 text-sm italic text-slate-500">{errorMessage}</p>}
@@ -52,16 +52,16 @@ function ResourceSection({ title, entries, loading, hasError, emptyMessage, erro
           ))}
         </ul>
       )}
-    </section>
+    </div>
   )
 }
 
 interface CourseResourcesPageProps {
-  route: '/chemistry-11' | '/chemistry-12' | '/anatomy-physiology' | '/calculus-12'
+  route: CourseConfig['route']
 }
 
 export default function CourseResourcesPage({ route }: CourseResourcesPageProps) {
-  const course = getCourseConfig(route)
+  const course = useMemo(() => getCourseConfig(route), [route])
   const [helpfulDocs, setHelpfulDocs] = useState<PdfEntry[]>([])
   const [assignments, setAssignments] = useState<PdfEntry[]>([])
   const [loadingHelpful, setLoadingHelpful] = useState(true)
@@ -71,6 +71,11 @@ export default function CourseResourcesPage({ route }: CourseResourcesPageProps)
 
   useEffect(() => {
     if (!course) return
+
+    setLoadingHelpful(true)
+    setLoadingAssignments(true)
+    setHelpfulError(false)
+    setAssignmentError(false)
 
     supabase
       .from('pdfs')
@@ -101,7 +106,7 @@ export default function CourseResourcesPage({ route }: CourseResourcesPageProps)
     <>
       <Head>
         <title>{`${course.displayName} | Science With Ms. Gobolos`}</title>
-        <meta name="description" content={course.description} />
+        <meta name="description" content={course.description ?? 'Notes, assignments, and resources for this course.'} />
       </Head>
 
       <div className="space-y-8 sm:space-y-10">
