@@ -1,6 +1,8 @@
 import { useState, useEffect, FormEvent } from 'react'
-import { supabase } from '../lib/supabase'
 import type { User } from '@supabase/supabase-js'
+import { courseConfigs, scholarshipResourceSections, type CourseConfig, type ResourceSectionConfig } from '../data/site-config'
+import { themeColors } from '../lib/design-tokens'
+import { supabase } from '../lib/supabase'
 
 interface DateCard {
   id: string
@@ -17,15 +19,12 @@ interface PdfEntry {
   uploaded_at: string
 }
 
+type PdfSection = ResourceSectionConfig['sectionKey'] | CourseConfig['helpfulSectionKey'] | CourseConfig['assignmentSectionKey']
+
+const coursePdfSections = courseConfigs.flatMap((course) => [course.helpfulSectionKey, course.assignmentSectionKey])
+
 export default function Admin() {
-  const colors = {
-    background: '#F8F9FB',
-    surface: '#FFFFFF',
-    primary: '#3B6EA8',
-    accent: '#7FB9C6',
-    textPrimary: '#1F2933',
-    textSecondary: '#4B5563',
-  }
+  const colors = themeColors
 
   // Auth state
   const [user, setUser] = useState<User | null>(null)
@@ -52,7 +51,7 @@ export default function Admin() {
   const [calc12Assignments, setCalc12Assignments] = useState<PdfEntry[]>([])
   const [pdfTitle, setPdfTitle] = useState('')
   const [pdfFile, setPdfFile] = useState<File | null>(null)
-  const [pdfSection, setPdfSection] = useState('newsletters')
+  const [pdfSection, setPdfSection] = useState<PdfSection>('newsletters')
 
   // Check for existing session on mount
   useEffect(() => {
@@ -72,16 +71,8 @@ export default function Admin() {
   useEffect(() => {
     if (user) {
       fetchDates()
-      fetchPdfs('newsletters')
-      fetchPdfs('howTo')
-      fetchPdfs('chem12_helpful')
-      fetchPdfs('chem12_assignments')
-      fetchPdfs('chem11_helpful')
-      fetchPdfs('chem11_assignments')
-      fetchPdfs('anatomy_helpful')
-      fetchPdfs('anatomy_assignments')
-      fetchPdfs('calc12_helpful')
-      fetchPdfs('calc12_assignments')
+      scholarshipResourceSections.forEach((section) => fetchPdfs(section.sectionKey))
+      coursePdfSections.forEach((section) => fetchPdfs(section))
     }
   }, [user])
 
@@ -108,7 +99,7 @@ export default function Admin() {
     else setDates(data || [])
   }
 
-  async function fetchPdfs(section: string) {
+  async function fetchPdfs(section: PdfSection) {
     const { data, error } = await supabase
       .from('pdfs')
       .select('*')
@@ -203,7 +194,7 @@ export default function Admin() {
     fetchPdfs(pdfSection)
   }
 
-  async function deletePdf(id: string, section: string, fileUrl: string) {
+  async function deletePdf(id: string, section: PdfSection, fileUrl: string) {
     // Extract the storage path from the public URL
     const storagePath = fileUrl.split('/storage/v1/object/public/pdfs/')[1]
     if (storagePath) {
@@ -397,28 +388,21 @@ export default function Admin() {
           <select
             style={inputStyle}
             value={pdfSection}
-            onChange={e => setPdfSection(e.target.value)}
+            onChange={e => setPdfSection(e.target.value as PdfSection)}
           >
             <optgroup label="Scholarships">
-              <option value="newsletters">Newsletters</option>
-              <option value="howTo">How To</option>
+              {scholarshipResourceSections.map((section) => (
+                <option key={section.sectionKey} value={section.sectionKey}>
+                  {section.displayName}
+                </option>
+              ))}
             </optgroup>
-            <optgroup label="Chemistry 12">
-              <option value="chem12_helpful">Helpful Documents</option>
-              <option value="chem12_assignments">Assignments</option>
-            </optgroup>
-            <optgroup label="Chemistry 11">
-              <option value="chem11_helpful">Helpful Documents</option>
-              <option value="chem11_assignments">Assignments</option>
-            </optgroup>
-            <optgroup label="Anatomy &amp; Physiology 12">
-              <option value="anatomy_helpful">Helpful Documents</option>
-              <option value="anatomy_assignments">Assignments</option>
-            </optgroup>
-            <optgroup label="Calculus 12">
-              <option value="calc12_helpful">Helpful Documents</option>
-              <option value="calc12_assignments">Assignments</option>
-            </optgroup>
+            {courseConfigs.map((course) => (
+              <optgroup key={course.route} label={course.displayName}>
+                <option value={course.helpfulSectionKey}>Helpful Documents</option>
+                <option value={course.assignmentSectionKey}>Assignments</option>
+              </optgroup>
+            ))}
           </select>
           <input
             style={inputStyle}
