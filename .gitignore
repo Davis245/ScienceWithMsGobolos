@@ -37,3 +37,5 @@ build/
 # Lockfiles (optional to commit)
 # package-lock.json
 # pnpm-lock.yaml
+
+*.tsbuildinfo

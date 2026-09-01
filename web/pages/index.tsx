@@ -1,12 +1,7 @@
+import { themeColors } from '../lib/design-tokens'
+
 export default function Home() {
-  const colors = {
-    background: '#F8F9FB',
-    surface: '#FFFFFF',
-    primary: '#3B6EA8',
-    accent: '#7FB9C6',
-    textPrimary: '#1F2933',
-    textSecondary: '#4B5563',
-  }
+  const colors = themeColors
 
   return (
     <div style={{ 

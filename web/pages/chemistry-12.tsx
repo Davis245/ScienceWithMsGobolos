@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { getCourseConfig } from '../data/site-config'
+import { themeColors } from '../lib/design-tokens'
 import { supabase } from '../lib/supabase'
 
 interface PdfEntry {
@@ -9,16 +11,10 @@ interface PdfEntry {
   uploaded_at: string
 }
 
-export default function Chemistry12() {
-  const colors = {
-    background: '#F8F9FB',
-    surface: '#FFFFFF',
-    primary: '#3B6EA8',
-    accent: '#7FB9C6',
-    textPrimary: '#1F2933',
-    textSecondary: '#4B5563',
-  }
+const course = getCourseConfig('/chemistry-12')!
 
+export default function Chemistry12() {
+  const colors = themeColors
   const [helpfulDocs, setHelpfulDocs] = useState<PdfEntry[]>([])
   const [assignments, setAssignments] = useState<PdfEntry[]>([])
 
@@ -27,14 +23,14 @@ export default function Chemistry12() {
       const { data: docsData } = await supabase
         .from('pdfs')
         .select('*')
-        .eq('section', 'chem12_helpful')
+        .eq('section', course.helpfulSectionKey)
         .order('uploaded_at', { ascending: true })
       if (docsData) setHelpfulDocs(docsData)
 
       const { data: assignData } = await supabase
         .from('pdfs')
         .select('*')
-        .eq('section', 'chem12_assignments')
+        .eq('section', course.assignmentSectionKey)
         .order('uploaded_at', { ascending: true })
       if (assignData) setAssignments(assignData)
     }
@@ -43,93 +39,105 @@ export default function Chemistry12() {
 
   return (
     <div style={{ padding: '40px 0' }}>
-      {/* Title */}
       <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <h1 style={{
-          display: 'inline-block',
-          fontSize: '48px',
-          fontWeight: 'bold',
-          color: colors.primary,
-          margin: '0',
-          padding: '16px 40px',
-          border: `2px solid ${colors.accent}`,
-          borderRadius: '16px',
-          backgroundColor: colors.accent
-        }}>
-          Chemistry 12
+        <h1
+          style={{
+            display: 'inline-block',
+            fontSize: '48px',
+            fontWeight: 'bold',
+            color: colors.primary,
+            margin: '0',
+            padding: '16px 40px',
+            border: `2px solid ${colors.accent}`,
+            borderRadius: '16px',
+            backgroundColor: colors.surface,
+          }}
+        >
+          {course.displayName}
         </h1>
       </div>
 
-      {/* Two-column PDF layout */}
       <div style={{ display: 'flex', gap: '40px' }}>
-        {/* Helpful Documents */}
         <div style={{ flex: 1 }}>
-          <h3 style={{
-            fontSize: '32px',
-            fontWeight: 'bold',
-            margin: '0 0 24px 0',
-            color: colors.primary
-          }}>
+          <h3
+            style={{
+              fontSize: '32px',
+              fontWeight: 'bold',
+              margin: '0 0 24px 0',
+              color: colors.primary,
+            }}
+          >
             Helpful Documents
           </h3>
-          <div style={{
-            backgroundColor: colors.surface,
-            borderRadius: '12px',
-            padding: '24px',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-          }}>
+          <div
+            style={{
+              backgroundColor: colors.surface,
+              borderRadius: '12px',
+              padding: '24px',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+            }}
+          >
             {helpfulDocs.length === 0 && (
-              <p style={{ color: colors.textSecondary, fontStyle: 'italic' }}>
-                No documents uploaded yet.
-              </p>
+              <p style={{ color: colors.textSecondary, fontStyle: 'italic' }}>No documents uploaded yet.</p>
             )}
-            {helpfulDocs.map(entry => (
-              <a key={entry.id} href={entry.file_url} target="_blank" rel="noopener noreferrer"
+            {helpfulDocs.map((entry) => (
+              <a
+                key={entry.id}
+                href={entry.file_url}
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{
                   display: 'block',
                   color: colors.primary,
                   textDecoration: 'none',
                   padding: '8px 0',
                   fontWeight: '500',
-                  borderBottom: `1px solid ${colors.accent}`
-                }}>
+                  borderBottom: `1px solid ${colors.accent}`,
+                }}
+              >
                 📄 {entry.title}
               </a>
             ))}
           </div>
         </div>
 
-        {/* Assignments */}
         <div style={{ flex: 1 }}>
-          <h3 style={{
-            fontSize: '32px',
-            fontWeight: 'bold',
-            margin: '0 0 24px 0',
-            color: colors.primary
-          }}>
+          <h3
+            style={{
+              fontSize: '32px',
+              fontWeight: 'bold',
+              margin: '0 0 24px 0',
+              color: colors.primary,
+            }}
+          >
             Assignments
           </h3>
-          <div style={{
-            backgroundColor: colors.surface,
-            borderRadius: '12px',
-            padding: '24px',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-          }}>
+          <div
+            style={{
+              backgroundColor: colors.surface,
+              borderRadius: '12px',
+              padding: '24px',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+            }}
+          >
             {assignments.length === 0 && (
-              <p style={{ color: colors.textSecondary, fontStyle: 'italic' }}>
-                No assignments uploaded yet.
-              </p>
+              <p style={{ color: colors.textSecondary, fontStyle: 'italic' }}>No assignments uploaded yet.</p>
             )}
-            {assignments.map(entry => (
-              <a key={entry.id} href={entry.file_url} target="_blank" rel="noopener noreferrer"
+            {assignments.map((entry) => (
+              <a
+                key={entry.id}
+                href={entry.file_url}
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{
                   display: 'block',
                   color: colors.primary,
                   textDecoration: 'none',
                   padding: '8px 0',
                   fontWeight: '500',
-                  borderBottom: `1px solid ${colors.accent}`
-                }}>
+                  borderBottom: `1px solid ${colors.accent}`,
+                }}
+              >
                 📄 {entry.title}
               </a>
             ))}
