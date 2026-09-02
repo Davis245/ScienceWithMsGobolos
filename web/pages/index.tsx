@@ -1,11 +1,27 @@
-import Link from 'next/link'
 import Head from 'next/head'
-import ButtonLink from '../components/ButtonLink'
-import CourseCard from '../components/CourseCard'
+import QuickLinkCard from '../components/QuickLinkCard'
 import SectionHeading from '../components/SectionHeading'
-import { courseConfigs } from '../data/site-config'
+import { courseConfigs, scholarshipQuickLinkConfig } from '../data/site-config'
+
+function getQuickLinkAccentLabel(title: string) {
+  if (title.startsWith('Chemistry')) {
+    return 'Chemistry'
+  }
+
+  if (title.startsWith('Anatomy')) {
+    return 'Biology'
+  }
+
+  if (title.startsWith('Calculus')) {
+    return 'Mathematics'
+  }
+
+  return 'Student Support'
+}
 
 export default function Home() {
+  const quickLinks = [...courseConfigs, scholarshipQuickLinkConfig]
+
   return (
     <>
       <Head>
@@ -17,56 +33,62 @@ export default function Home() {
       </Head>
 
       <div className="space-y-10 sm:space-y-14">
-        <section className="rounded-panel border border-border bg-white px-5 py-8 shadow-surface sm:px-8">
-          <p className="m-0 text-sm font-semibold uppercase tracking-[0.18em] text-brand">Science &amp; Math</p>
-          <div className="mt-4 max-w-3xl">
-            <h1 className="m-0 text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">Science With Ms. Gobolos</h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-              Chemistry, biology and calculus resources for students at Lake City Secondary School.
-            </p>
-          </div>
-
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <ButtonLink href="#courses">View Courses</ButtonLink>
-            <ButtonLink href="/scholarships" variant="secondary">
-              Scholarships
-            </ButtonLink>
-          </div>
-
-          <div className="mt-6 flex flex-col gap-2 border-t border-border pt-5 text-sm text-slate-600 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">
-            <span className="font-medium text-slate-900">Lake City Secondary School</span>
-            <span>Room 110</span>
-            <a className="font-medium text-brand underline-offset-4 hover:underline" href="mailto:jeannette.gobolos@sd27.bc.ca">
-              jeannette.gobolos@sd27.bc.ca
-            </a>
-            <span>(250) 392-6284</span>
-          </div>
-        </section>
-
-        <section id="courses" className="scroll-mt-24">
-          <SectionHeading title="Courses" description="Notes, assignments and resources for each course." />
-          <div className="grid gap-4 md:grid-cols-2">
-            {courseConfigs.map((course) => (
-              <CourseCard key={course.route} course={course} />
-            ))}
-          </div>
-        </section>
-
-        <section className="rounded-panel border border-amber-200 bg-amber-50/70 px-5 py-6 sm:px-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <section className="rounded-panel border border-border bg-white px-5 py-8 shadow-surface sm:px-8 sm:py-10">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
             <div className="max-w-2xl">
-              <h2 className="m-0 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Scholarships &amp; Awards</h2>
-              <p className="mt-3 text-base leading-7 text-slate-600">
-                Important dates, opportunities and application resources for graduating students.
-              </p>
+              <p className="m-0 text-sm font-semibold uppercase tracking-[0.18em] text-brand">Science &amp; Math</p>
+              <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">Ms. Gobolos</h1>
             </div>
 
-            <Link
-              href="/scholarships"
-              className="inline-flex items-center text-sm font-semibold text-slate-900 no-underline transition-colors hover:text-amber-700"
-            >
-              View Scholarships
-            </Link>
+            <dl className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-border/80 bg-slate-50/70 px-4 py-4">
+                <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">School</dt>
+                <dd className="mt-2 text-base font-medium text-slate-900">Lake City Secondary School</dd>
+              </div>
+              <div className="rounded-2xl border border-border/80 bg-slate-50/70 px-4 py-4">
+                <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Room</dt>
+                <dd className="mt-2 text-base font-medium text-slate-900">Room 110</dd>
+              </div>
+              <div className="rounded-2xl border border-border/80 bg-slate-50/70 px-4 py-4">
+                <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Email</dt>
+                <dd className="mt-2 text-base font-medium">
+                  <a className="break-words text-brand underline-offset-4 hover:underline focus-visible:underline" href="mailto:jeannette.gobolos@sd27.bc.ca">
+                    jeannette.gobolos@sd27.bc.ca
+                  </a>
+                </dd>
+              </div>
+              <div className="rounded-2xl border border-border/80 bg-slate-50/70 px-4 py-4">
+                <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Phone</dt>
+                <dd className="mt-2 text-base font-medium">
+                  <a className="text-brand underline-offset-4 hover:underline focus-visible:underline" href="tel:+12503926284">
+                    (250) 392-6284
+                  </a>
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+
+        <section className="scroll-mt-24">
+          <SectionHeading title="Quick Links" description="Jump directly to course pages and student opportunities." />
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+            {quickLinks.map((link, index) => (
+              <QuickLinkCard
+                key={link.route}
+                title={link.displayName}
+                description={link.description}
+                href={link.route}
+                accent={link.accent}
+                accentLabel={getQuickLinkAccentLabel(link.displayName)}
+                className={
+                  index < 3
+                    ? 'xl:col-span-2'
+                    : index === 3
+                      ? 'xl:col-span-2 xl:col-start-2'
+                      : 'xl:col-span-2 xl:col-start-4'
+                }
+              />
+            ))}
           </div>
         </section>
       </div>

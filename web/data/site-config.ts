@@ -17,6 +17,13 @@ export interface ResourceSectionConfig {
   sectionKey: 'newsletters' | 'howTo'
 }
 
+export interface ScholarshipQuickLinkConfig {
+  displayName: string
+  route: '/scholarships'
+  description: string
+  accent: 'amber'
+}
+
 export const courseConfigs: readonly CourseConfig[] = [
   {
     displayName: 'Chemistry 11',
@@ -68,6 +75,13 @@ export const scholarshipResourceSections: readonly ResourceSectionConfig[] = [
     sectionKey: 'howTo',
   },
 ] as const
+
+export const scholarshipQuickLinkConfig: ScholarshipQuickLinkConfig = {
+  displayName: 'Scholarships, Bursaries & Awards',
+  route: '/scholarships',
+  description: 'Deadlines, opportunities, and application guidance for graduating students.',
+  accent: 'amber',
+}
 
 export const primaryNavigationItems = [
   { label: 'Home', route: '/' as const },
