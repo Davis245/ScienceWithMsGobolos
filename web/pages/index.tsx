@@ -34,38 +34,36 @@ export default function Home() {
 
       <div className="space-y-10 sm:space-y-14">
         <section className="rounded-panel border border-border bg-white px-5 py-8 shadow-surface sm:px-8 sm:py-10">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
-            <div className="max-w-2xl">
-              <p className="m-0 text-sm font-semibold uppercase tracking-[0.18em] text-brand">Science &amp; Math</p>
-              <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">Ms. Gobolos</h1>
+          <div className="mx-auto max-w-4xl text-center">
+            <h1 className="m-0 text-5xl font-semibold tracking-tight text-slate-900 sm:text-6xl">Ms. Gobolos</h1>
+            <div className="mt-6 border-t border-border pt-5">
+              <dl className="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-4 sm:gap-y-2">
+                <div className="contents">
+                  <dt className="sr-only">School</dt>
+                  <dd className="font-medium text-slate-900">Lake City Secondary School</dd>
+                </div>
+                <div className="contents">
+                  <dt className="sr-only">Room</dt>
+                  <dd>Room 110</dd>
+                </div>
+                <div className="contents">
+                  <dt className="sr-only">Email</dt>
+                  <dd>
+                    <a className="break-words font-medium text-brand underline-offset-4 hover:underline focus-visible:underline" href="mailto:jeannette.gobolos@sd27.bc.ca">
+                      jeannette.gobolos@sd27.bc.ca
+                    </a>
+                  </dd>
+                </div>
+                <div className="contents">
+                  <dt className="sr-only">Phone</dt>
+                  <dd>
+                    <a className="font-medium text-brand underline-offset-4 hover:underline focus-visible:underline" href="tel:+12503926284">
+                      (250) 392-6284
+                    </a>
+                  </dd>
+                </div>
+              </dl>
             </div>
-
-            <dl className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl border border-border/80 bg-slate-50/70 px-4 py-4">
-                <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">School</dt>
-                <dd className="mt-2 text-base font-medium text-slate-900">Lake City Secondary School</dd>
-              </div>
-              <div className="rounded-2xl border border-border/80 bg-slate-50/70 px-4 py-4">
-                <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Room</dt>
-                <dd className="mt-2 text-base font-medium text-slate-900">Room 110</dd>
-              </div>
-              <div className="rounded-2xl border border-border/80 bg-slate-50/70 px-4 py-4">
-                <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Email</dt>
-                <dd className="mt-2 text-base font-medium">
-                  <a className="break-words text-brand underline-offset-4 hover:underline focus-visible:underline" href="mailto:jeannette.gobolos@sd27.bc.ca">
-                    jeannette.gobolos@sd27.bc.ca
-                  </a>
-                </dd>
-              </div>
-              <div className="rounded-2xl border border-border/80 bg-slate-50/70 px-4 py-4">
-                <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Phone</dt>
-                <dd className="mt-2 text-base font-medium">
-                  <a className="text-brand underline-offset-4 hover:underline focus-visible:underline" href="tel:+12503926284">
-                    (250) 392-6284
-                  </a>
-                </dd>
-              </div>
-            </dl>
           </div>
         </section>
 
