@@ -28,7 +28,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Science With Ms. Gobolos</title>
+        <title>Ms. Gobolos</title>
         <meta
           name="description"
           content="Chemistry, anatomy, and calculus resources for students at Lake City Secondary School."
