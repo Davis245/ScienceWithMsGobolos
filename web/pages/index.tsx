@@ -37,7 +37,7 @@ export default function Home() {
 
       <div className="flex flex-1 flex-col">
         <section
-          className="relative overflow-hidden rounded-panel border border-slate-700 bg-cover bg-center shadow-surface"
+          className="relative overflow-hidden rounded-panel border border-slate-700 bg-cover bg-center bg-no-repeat shadow-surface"
           style={{ backgroundImage: "url('/classroom-hero.jpeg')" }}
         >
           <div className="absolute inset-0 bg-slate-950/60" aria-hidden="true" />
