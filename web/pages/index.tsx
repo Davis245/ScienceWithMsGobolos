@@ -1,22 +1,25 @@
 import Head from 'next/head'
 import QuickLinkCard from '../components/QuickLinkCard'
-import SectionHeading from '../components/SectionHeading'
 import { courseConfigs, scholarshipQuickLinkConfig } from '../data/site-config'
 
-function getQuickLinkAccentLabel(title: string) {
-  if (title.startsWith('Chemistry')) {
-    return 'Chemistry'
+function getQuickLinkSymbol(title: string) {
+  if (title === 'Chemistry 11') {
+    return '⚗'
+  }
+
+  if (title === 'Chemistry 12') {
+    return '🧪'
   }
 
   if (title.startsWith('Anatomy')) {
-    return 'Biology'
+    return '♥'
   }
 
   if (title.startsWith('Calculus')) {
-    return 'Mathematics'
+    return '∫'
   }
 
-  return 'Student Support'
+  return '★'
 }
 
 export default function Home() {
@@ -70,23 +73,14 @@ export default function Home() {
         </section>
 
         <section className="scroll-mt-24">
-          <SectionHeading title="Quick Links" description="Jump directly to course pages and student opportunities." />
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-            {quickLinks.map((link, index) => (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {quickLinks.map((link) => (
               <QuickLinkCard
                 key={link.route}
                 title={link.displayName}
-                description={link.description}
                 href={link.route}
                 accent={link.accent}
-                accentLabel={getQuickLinkAccentLabel(link.displayName)}
-                className={
-                  index < 3
-                    ? 'xl:col-span-2'
-                    : index === 3
-                      ? 'xl:col-span-2 xl:col-start-2'
-                      : 'xl:col-span-2 xl:col-start-4'
-                }
+                symbol={getQuickLinkSymbol(link.displayName)}
               />
             ))}
           </div>
