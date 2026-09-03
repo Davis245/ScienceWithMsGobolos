@@ -100,7 +100,7 @@ export default function CourseResourcesPage({ route }: CourseResourcesPageProps)
   return (
     <>
       <Head>
-        <title>{`${course.displayName} | Science With Ms. Gobolos`}</title>
+        <title>{`${course.displayName} | Ms. Gobolos`}</title>
         <meta name="description" content={course.description} />
       </Head>
 
