@@ -531,7 +531,7 @@ function PdfUploadForm({ onUploaded }: PdfUploadFormProps) {
       </div>
       <div>
         <label htmlFor="pdf-title" style={labelStyle}>
-          PDF title
+          PDF title <span style={{ fontWeight: 400, color: colors.textSecondary }}>(optional)</span>
         </label>
         <input
           id="pdf-title"
