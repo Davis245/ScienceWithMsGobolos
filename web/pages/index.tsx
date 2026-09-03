@@ -33,7 +33,7 @@ export default function Home() {
       </Head>
 
       <div className="space-y-10 sm:space-y-14">
-        <section className="rounded-panel border border-border bg-white px-5 py-4 shadow-surface sm:px-8 sm:py-5">
+        <section className="rounded-panel border border-border bg-white px-5 pb-0 pt-4 shadow-surface sm:px-8 sm:pb-0 sm:pt-5">
           <div className="mx-auto flex min-h-[8rem] max-w-4xl flex-col text-center sm:min-h-[9rem]">
             <div className="flex flex-1 items-center justify-center">
               <h1 className="m-0 text-5xl font-semibold tracking-tight text-slate-900 sm:text-6xl">Ms. Gobolos</h1>
