@@ -338,7 +338,7 @@ function ImportantDatesManager({ dates, onRefresh }: ImportantDatesManagerProps)
       >
         <div>
           <label htmlFor="date-field" style={labelStyle}>
-            Date
+            Date <span style={{ fontWeight: 400, color: colors.textSecondary }}>(optional)</span>
           </label>
           <input
             id="date-field"
@@ -346,31 +346,28 @@ function ImportantDatesManager({ dates, onRefresh }: ImportantDatesManagerProps)
             placeholder="e.g. Feb 15, 2026"
             value={dateForm.date}
             onChange={(e) => setDateForm({ ...dateForm, date: e.target.value })}
-            required
           />
         </div>
         <div>
           <label htmlFor="date-title" style={labelStyle}>
-            Title
+            Title <span style={{ fontWeight: 400, color: colors.textSecondary }}>(optional)</span>
           </label>
           <input
             id="date-title"
             style={inputStyle}
             value={dateForm.title}
             onChange={(e) => setDateForm({ ...dateForm, title: e.target.value })}
-            required
           />
         </div>
         <div>
           <label htmlFor="date-description" style={labelStyle}>
-            Description
+            Description <span style={{ fontWeight: 400, color: colors.textSecondary }}>(optional)</span>
           </label>
           <input
             id="date-description"
             style={inputStyle}
             value={dateForm.description}
             onChange={(e) => setDateForm({ ...dateForm, description: e.target.value })}
-            required
           />
         </div>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -458,10 +455,11 @@ function PdfUploadForm({ onUploaded }: PdfUploadFormProps) {
 
   async function handlePdfUpload(e: FormEvent) {
     e.preventDefault()
-    if (!pdfFile || !pdfTitle) return
+    if (!pdfFile) return
 
     setLoading(true)
 
+    const displayTitle = pdfTitle.trim() || pdfFile.name.replace(/\.pdf$/i, '')
     const fileName = `${pdfSection}/${Date.now()}_${pdfFile.name}`
     const { error: uploadError } = await supabase.storage.from('pdfs').upload(fileName, pdfFile)
 
@@ -474,7 +472,7 @@ function PdfUploadForm({ onUploaded }: PdfUploadFormProps) {
     const { data: urlData } = supabase.storage.from('pdfs').getPublicUrl(fileName)
 
     const { error: insertError } = await supabase.from('pdfs').insert({
-      title: pdfTitle,
+      title: displayTitle,
       section: pdfSection,
       file_url: urlData.publicUrl,
     })
@@ -486,7 +484,7 @@ function PdfUploadForm({ onUploaded }: PdfUploadFormProps) {
       return
     }
 
-    showFeedback(`"${pdfTitle}" uploaded successfully to ${sectionLabel(pdfSection)}.`, false)
+    showFeedback(`"${displayTitle}" uploaded successfully to ${sectionLabel(pdfSection)}.`, false)
     setPdfTitle('')
     setPdfFile(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
@@ -533,14 +531,13 @@ function PdfUploadForm({ onUploaded }: PdfUploadFormProps) {
       </div>
       <div>
         <label htmlFor="pdf-title" style={labelStyle}>
-          PDF title
+          PDF title <span style={{ fontWeight: 400, color: colors.textSecondary }}>(optional)</span>
         </label>
         <input
           id="pdf-title"
           style={inputStyle}
           value={pdfTitle}
           onChange={(e) => setPdfTitle(e.target.value)}
-          required
         />
       </div>
       <div>
