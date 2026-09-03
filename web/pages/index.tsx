@@ -2,24 +2,24 @@ import Head from 'next/head'
 import QuickLinkCard from '../components/QuickLinkCard'
 import { courseConfigs, scholarshipQuickLinkConfig } from '../data/site-config'
 
-function getQuickLinkSymbol(title: string) {
+function getQuickLinkIcon(title: string) {
   if (title === 'Chemistry 11') {
-    return '⚗'
+    return '/icons/chemistry-11.svg'
   }
 
   if (title === 'Chemistry 12') {
-    return '🧪'
+    return '/icons/chemistry-12.svg'
   }
 
   if (title.startsWith('Anatomy')) {
-    return '♥'
+    return '/icons/anatomy-physiology.svg'
   }
 
   if (title.startsWith('Calculus')) {
-    return '∫'
+    return '/icons/calculus-12.svg'
   }
 
-  return '★'
+  return '/icons/scholarships.svg'
 }
 
 export default function Home() {
@@ -80,7 +80,7 @@ export default function Home() {
                 title={link.displayName}
                 href={link.route}
                 accent={link.accent}
-                symbol={getQuickLinkSymbol(link.displayName)}
+                iconSrc={getQuickLinkIcon(link.displayName)}
               />
             ))}
           </div>
