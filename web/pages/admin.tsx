@@ -747,7 +747,7 @@ export default function Admin() {
       <>
         <Head>
           <title>Admin | Ms. Gobolos</title>
-          <meta name="description" content="Admin dashboard for managing Ms. Gobolos site content." />
+          <meta name="description" content="Admin dashboard for managing Science With Ms. Gobolos site content." />
           <meta name="robots" content="noindex,nofollow" />
         </Head>
         <div style={{ textAlign: 'center', padding: '80px 0' }}>
@@ -763,7 +763,7 @@ export default function Admin() {
       <>
         <Head>
           <title>Admin | Ms. Gobolos</title>
-          <meta name="description" content="Admin dashboard for managing Ms. Gobolos site content." />
+          <meta name="description" content="Admin dashboard for managing Science With Ms. Gobolos site content." />
           <meta name="robots" content="noindex,nofollow" />
         </Head>
         <AdminLogin onLogin={() => {}} />
@@ -775,7 +775,7 @@ export default function Admin() {
     <>
       <Head>
         <title>Admin | Ms. Gobolos</title>
-        <meta name="description" content="Admin dashboard for managing Ms. Gobolos site content." />
+        <meta name="description" content="Admin dashboard for managing Science With Ms. Gobolos site content." />
         <meta name="robots" content="noindex,nofollow" />
       </Head>
       <div style={{ padding: '40px 16px', maxWidth: '900px', margin: '0 auto', boxSizing: 'border-box' }}>
