@@ -19,6 +19,7 @@ export default function Layout({ children }: LayoutProps) {
   const desktopCoursesRef = useRef<HTMLDivElement>(null)
   const currentYear = new Date().getFullYear()
   const isCourseRoute = courseConfigs.some((course) => router.pathname === course.route)
+  const isHomeRoute = router.pathname === '/'
 
   useEffect(() => {
     setIsMobileMenuOpen(false)
@@ -220,18 +221,20 @@ export default function Layout({ children }: LayoutProps) {
         </Container>
       </header>
 
-      <main id="main-content" className="flex-1" tabIndex={-1}>
-        <Container className="py-8 sm:py-10">{children}</Container>
+      <main id="main-content" className={isHomeRoute ? 'flex flex-1' : 'flex-1'} tabIndex={-1}>
+        <Container className={isHomeRoute ? 'flex flex-1 flex-col py-8 sm:py-10' : 'py-8 sm:py-10'}>{children}</Container>
       </main>
 
-      <footer className="border-t border-border bg-white/80 py-5 text-sm text-muted">
-        <Container className="flex flex-col gap-1">
-          <p className="m-0 font-medium text-ink">Ms. Gobolos</p>
-          <p className="m-0">Lake City Secondary School</p>
-          <p className="m-0">Room 110</p>
-          <p className="m-0">© {currentYear}</p>
-        </Container>
-      </footer>
+      {!isHomeRoute && (
+        <footer className="border-t border-border bg-white/80 py-5 text-sm text-muted">
+          <Container className="flex flex-col gap-1">
+            <p className="m-0 font-medium text-ink">Ms. Gobolos</p>
+            <p className="m-0">Lake City Secondary School</p>
+            <p className="m-0">Room 110</p>
+            <p className="m-0">© {currentYear}</p>
+          </Container>
+        </footer>
+      )}
     </div>
   )
 }

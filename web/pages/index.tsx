@@ -35,7 +35,7 @@ export default function Home() {
         />
       </Head>
 
-      <div className="space-y-10 sm:space-y-14">
+      <div className="flex flex-1 flex-col">
         <section className="rounded-panel border border-border bg-white px-5 pb-0 pt-4 shadow-surface sm:px-8 sm:pb-0 sm:pt-5">
           <div className="mx-auto flex min-h-[8rem] max-w-4xl flex-col text-center sm:min-h-[9rem]">
             <div className="flex flex-1 items-center justify-center">
@@ -72,7 +72,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="scroll-mt-24">
+        <section className="mt-auto scroll-mt-24 pt-10 sm:pt-14">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {quickLinks.map((link) => (
               <QuickLinkCard
