@@ -5,7 +5,9 @@ export const colorTokens = {
   textMuted: '#64748B',
   border: '#E2E8F0',
   blue: '#2563EB',
+  red: '#DC2626',
   green: '#16A34A',
+  pink: '#DB2777',
   purple: '#7C3AED',
   amber: '#D97706',
   focus: '#1D4ED8',
@@ -25,11 +27,13 @@ export const maxWidthTokens = {
   content: '75rem',
 } as const
 
-export type SubjectAccent = 'blue' | 'green' | 'purple' | 'amber'
+export type SubjectAccent = 'blue' | 'red' | 'green' | 'pink' | 'purple' | 'amber'
 
 export const subjectAccentColors: Record<SubjectAccent, string> = {
   blue: colorTokens.blue,
+  red: colorTokens.red,
   green: colorTokens.green,
+  pink: colorTokens.pink,
   purple: colorTokens.purple,
   amber: colorTokens.amber,
 }
