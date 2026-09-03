@@ -58,14 +58,21 @@ export default function Layout({ children }: LayoutProps) {
   const menuPanelClass = 'rounded-2xl border border-border bg-white p-2 shadow-soft'
 
   return (
-    <div className="flex min-h-screen flex-col bg-page text-slate-900">
+    <div
+      className={`flex min-h-screen flex-col bg-cover bg-center bg-no-repeat text-slate-900 ${isHomeRoute ? '' : 'bg-page'}`}
+      style={isHomeRoute ? { backgroundImage: "url('/classroom-hero.jpeg')" } : undefined}
+    >
       <a
         href="#main-content"
         className="sr-only z-50 rounded-md bg-white px-3 py-2 text-sm font-medium text-ink no-underline shadow-soft focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
       >
         Skip to main content
       </a>
-      <header className="sticky top-0 z-30 border-b border-border bg-white/90 backdrop-blur">
+      <header
+        className={`sticky top-0 z-30 border-b backdrop-blur ${
+          isHomeRoute ? 'border-white/30 bg-white/80' : 'border-border bg-white/90'
+        }`}
+      >
         <Container>
           <nav className="flex min-h-[4.5rem] items-center justify-between gap-4 py-3" aria-label="Primary">
             <Link href="/" className="text-lg font-semibold tracking-tight text-ink no-underline">
@@ -223,12 +230,7 @@ export default function Layout({ children }: LayoutProps) {
 
       <main
         id="main-content"
-        className={
-          isHomeRoute
-            ? "relative flex flex-1 bg-cover bg-center bg-no-repeat before:absolute before:inset-0 before:bg-slate-950/45 before:content-['']"
-            : 'flex-1'
-        }
-        style={isHomeRoute ? { backgroundImage: "url('/classroom-hero.jpeg')" } : undefined}
+        className={isHomeRoute ? 'flex flex-1 bg-slate-950/45' : 'flex-1'}
         tabIndex={-1}
       >
         <Container className={isHomeRoute ? 'relative z-10 flex flex-1 flex-col py-8 sm:py-10' : 'py-8 sm:py-10'}>
