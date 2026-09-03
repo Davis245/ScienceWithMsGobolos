@@ -484,7 +484,7 @@ function PdfUploadForm({ onUploaded }: PdfUploadFormProps) {
       return
     }
 
-    showFeedback(`"${pdfTitle}" uploaded successfully to ${sectionLabel(pdfSection)}.`, false)
+    showFeedback(`"${displayTitle}" uploaded successfully to ${sectionLabel(pdfSection)}.`, false)
     setPdfTitle('')
     setPdfFile(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
