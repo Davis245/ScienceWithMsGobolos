@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Calculus graph</title>
+  <g fill="none" stroke="#DB2777" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 52V12M10 52h44"/>
+    <path d="M15 46c8 0 9-25 19-25 8 0 8 18 20 18"/>
+    <path d="m49 35 5 4-5 4"/>
+    <path d="m6 17 4-5 4 5"/>
+  </g>
+</svg>
