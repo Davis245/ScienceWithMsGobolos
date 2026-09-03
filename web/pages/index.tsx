@@ -33,12 +33,12 @@ export default function Home() {
       </Head>
 
       <div className="space-y-10 sm:space-y-14">
-        <section className="rounded-panel border border-border bg-white px-5 py-8 shadow-surface sm:px-8 sm:py-10">
-          <div className="mx-auto flex min-h-[15rem] max-w-4xl flex-col text-center sm:min-h-[16rem]">
+        <section className="rounded-panel border border-border bg-white px-5 py-4 shadow-surface sm:px-8 sm:py-5">
+          <div className="mx-auto flex min-h-[8rem] max-w-4xl flex-col text-center sm:min-h-[9rem]">
             <div className="flex flex-1 items-center justify-center">
               <h1 className="m-0 text-5xl font-semibold tracking-tight text-slate-900 sm:text-6xl">Ms. Gobolos</h1>
             </div>
-            <div className="border-t border-border pt-3">
+            <div className="border-t border-border py-3">
               <dl className="flex flex-col gap-1.5 text-sm text-slate-600 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-4 sm:gap-y-1.5">
                 <div className="contents">
                   <dt className="sr-only">School</dt>
