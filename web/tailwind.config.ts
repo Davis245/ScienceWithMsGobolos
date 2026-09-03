@@ -15,9 +15,9 @@ const config: Config = {
         border: '#E2E8F0',
         ink: '#0F172A',
         muted: '#64748B',
-        chemistry: '#2563EB',
+        chemistry: '#DC2626',
         anatomy: '#16A34A',
-        calculus: '#7C3AED',
+        calculus: '#DB2777',
         scholarships: '#D97706',
       },
       maxWidth: {
