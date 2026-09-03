@@ -746,7 +746,7 @@ export default function Admin() {
     return (
       <>
         <Head>
-          <title>Admin | Science With Ms. Gobolos</title>
+          <title>Admin | Ms. Gobolos</title>
           <meta name="description" content="Admin dashboard for managing Science With Ms. Gobolos site content." />
           <meta name="robots" content="noindex,nofollow" />
         </Head>
@@ -762,7 +762,7 @@ export default function Admin() {
     return (
       <>
         <Head>
-          <title>Admin | Science With Ms. Gobolos</title>
+          <title>Admin | Ms. Gobolos</title>
           <meta name="description" content="Admin dashboard for managing Science With Ms. Gobolos site content." />
           <meta name="robots" content="noindex,nofollow" />
         </Head>
@@ -774,7 +774,7 @@ export default function Admin() {
   return (
     <>
       <Head>
-        <title>Admin | Science With Ms. Gobolos</title>
+        <title>Admin | Ms. Gobolos</title>
         <meta name="description" content="Admin dashboard for managing Science With Ms. Gobolos site content." />
         <meta name="robots" content="noindex,nofollow" />
       </Head>

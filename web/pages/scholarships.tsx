@@ -93,7 +93,7 @@ export default function Scholarships() {
   return (
     <>
       <Head>
-        <title>Scholarships | Science With Ms. Gobolos</title>
+        <title>Scholarships | Ms. Gobolos</title>
         <meta
           name="description"
           content="Scholarship, bursary, and award deadlines with newsletters and application guides for graduating students."
