@@ -221,8 +221,19 @@ export default function Layout({ children }: LayoutProps) {
         </Container>
       </header>
 
-      <main id="main-content" className={isHomeRoute ? 'flex flex-1' : 'flex-1'} tabIndex={-1}>
-        <Container className={isHomeRoute ? 'flex flex-1 flex-col py-8 sm:py-10' : 'py-8 sm:py-10'}>{children}</Container>
+      <main
+        id="main-content"
+        className={
+          isHomeRoute
+            ? "relative flex flex-1 bg-cover bg-center bg-no-repeat before:absolute before:inset-0 before:bg-slate-950/45 before:content-['']"
+            : 'flex-1'
+        }
+        style={isHomeRoute ? { backgroundImage: "url('/classroom-hero.jpeg')" } : undefined}
+        tabIndex={-1}
+      >
+        <Container className={isHomeRoute ? 'relative z-10 flex flex-1 flex-col py-8 sm:py-10' : 'py-8 sm:py-10'}>
+          {children}
+        </Container>
       </main>
 
       {!isHomeRoute && (
