@@ -36,13 +36,18 @@ export default function Home() {
       </Head>
 
       <div className="flex flex-1 flex-col">
-        <section className="rounded-panel border border-border bg-white px-5 pb-0 pt-5 shadow-surface sm:px-8 sm:pb-0 sm:pt-6">
-          <div className="mx-auto flex min-h-[9rem] max-w-[51rem] flex-col text-center sm:min-h-[10rem]">
-            <div className="flex flex-1 items-center justify-center">
-              <h1 className="m-0 text-5xl font-semibold tracking-tight text-slate-900 sm:text-6xl">Ms. Gobolos</h1>
+        <section
+          className="relative overflow-hidden rounded-panel border border-slate-700 bg-cover bg-center shadow-surface"
+          style={{ backgroundImage: "url('/classroom-hero.jpeg')" }}
+        >
+          <div className="absolute inset-0 bg-slate-950/60" aria-hidden="true" />
+
+          <div className="relative z-10 mx-auto flex min-h-[22rem] max-w-[51rem] flex-col px-5 py-6 text-center text-white sm:min-h-[26rem] sm:px-8 sm:py-8">
+            <div className="flex flex-1 items-center justify-center py-8">
+              <h1 className="m-0 text-5xl font-semibold tracking-tight text-white sm:text-6xl">Ms. Gobolos</h1>
             </div>
-            <div className="border-t border-border py-3">
-              <dl className="flex flex-col gap-1.5 text-sm text-slate-600 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-4 sm:gap-y-1.5">
+            <div className="border-t border-white/30 pt-4">
+              <dl className="flex flex-col gap-2 text-sm text-slate-100 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-4 sm:gap-y-2">
                 <div className="contents">
                   <dt className="sr-only">School</dt>
                   <dd>Lake City Secondary School</dd>
@@ -54,7 +59,7 @@ export default function Home() {
                 <div className="contents">
                   <dt className="sr-only">Email</dt>
                   <dd>
-                    <a className="break-words text-slate-600 underline-offset-4 hover:underline focus-visible:underline" href="mailto:jeannette.gobolos@sd27.bc.ca">
+                    <a className="break-words text-slate-100 underline-offset-4 hover:underline focus-visible:underline" href="mailto:jeannette.gobolos@sd27.bc.ca">
                       jeannette.gobolos@sd27.bc.ca
                     </a>
                   </dd>
@@ -62,7 +67,7 @@ export default function Home() {
                 <div className="contents">
                   <dt className="sr-only">Phone</dt>
                   <dd>
-                    <a className="text-slate-600 underline-offset-4 hover:underline focus-visible:underline" href="tel:+12503926284">
+                    <a className="text-slate-100 underline-offset-4 hover:underline focus-visible:underline" href="tel:+12503926284">
                       (250) 392-6284
                     </a>
                   </dd>
